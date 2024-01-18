@@ -1,9 +1,9 @@
-## 本地运行
+## 本地运行(以Linux为例)
 - 本地环境参考这个：https://www.cnblogs.com/CltCj/articles/17661086.html
 - 安装依赖：
 ```
 mkdir ~/mqtt-client-sdk && cd ~/mqtt-client-sdk
-git clone https://github.com/eclipse/paho.mqtt.c.git
+git clone https://github.com/eclipse/paho.mqtt.c.git # 也可以使用国内的镜像:https://gitee.com/mirrors/paho.mqtt.c.git
 cd paho.mqtt.c
 mkdir build
 cd build
