@@ -1,3 +1,0 @@
-/root/IoV-Edge-CClient/build/CMakeFiles/rebuild_cache.dir
-/root/IoV-Edge-CClient/build/CMakeFiles/edit_cache.dir
-/root/IoV-Edge-CClient/build/CMakeFiles/IoV-Edge-CClient.dir

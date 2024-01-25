@@ -1,1 +1,0 @@
-arm-linux-gnueabi-gcc -march=armv5te   CMakeFiles/IoV-Edge-CClient.dir/main.c.o  -o IoV-Edge-CClient   -L/usr/local/lib  -Wl,-rpath,/usr/local/lib -lm -lpthread /usr/local/lib/libpaho-mqtt3c.so 
