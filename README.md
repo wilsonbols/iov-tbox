@@ -47,7 +47,7 @@ SET(CMAKE_C_FLAGS "-march=armv5te")
  cmake -DCMAKE_TOOLCHAIN_FILE=~/mqtt-client-sdk/paho.mqtt.c/cmake/toolchain.linux-arm11.cmake   \
        -DPAHO_BUILD_STATIC=TRUE     \
        -DPAHO_BUILD_SAMPLES=FALSE   \
-       ~/mqtt-client-sdk/paho.mqtt.cmake
+       ~/mqtt-client-sdk/paho.mqtt.c
 make 
 make install
 ```
