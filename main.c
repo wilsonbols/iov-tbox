@@ -9,12 +9,12 @@
 #define DEBUG       0
 
 #define ADDRESS     "tcp://192.168.2.128:1883"
-#define USERNAME    "admin"
-#define PASSWORD    "P2ssw0rd@123"
-#define CLIENTID    "c-client-lxm"
+#define USERNAME    "emqx"
+#define PASSWORD    "public"
+#define CLIENTID    "c-client-vin1"
 #define QOS         0
-#define TOPIC_WARNING       "vehicle-warning" //emqx/c-test
-#define TOPIC_INFO       "vehicle-info" //emqx/c-test
+#define TOPIC_WARNING       "vehicle-ac" //emqx/c-test
+#define TOPIC_INFO       "vehicle-control" //emqx/c-test
 #define TIMEOUT     10000L
 
 void publish(MQTTClient client, char *topic, char *payload) {
