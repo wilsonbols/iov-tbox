@@ -41,7 +41,7 @@ SET(CMAKE_SYSTEM_VERSION 1)
 SET(CMAKE_C_FLAGS "-march=armv5te")
 ```
  
-# 编译应用
+编译
 
 ```
  cmake -DCMAKE_TOOLCHAIN_FILE=~/mqtt-client-sdk/paho.mqtt.c/cmake/toolchain.linux-arm11.cmake   \
@@ -77,7 +77,7 @@ Installing: /usr/local/lib/libpaho-mqtt3c.so.1.3.13
 -- Installing: /usr/local/lib/cmake/eclipse-paho-mqtt-c/eclipse-paho-mqtt-cConfigVersion.cmake
 ```
 
-编译样例程序
+## 编译样例程序
 ```
 mkdir manual-build && cd manual-build
 cmake .. && make  ##构建 
