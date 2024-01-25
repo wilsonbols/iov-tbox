@@ -2,6 +2,16 @@ cmake_minimum_required(VERSION 3.12)
 find_package(eclipse-paho-mqtt-c 1.3.13 REQUIRED)
 project(IoV-Edge-CClient C)
 
+#compile with arm 
+SET(CMAKE_C_COMPILER arm-linux-gnueabi-gcc)
+# Name of the target platform
+SET(CMAKE_SYSTEM_NAME Linux)
+SET(CMAKE_SYSTEM_PROCESSOR arm)
+# Version of the system
+SET(CMAKE_SYSTEM_VERSION 1)
+SET(CMAKE_C_FLAGS "-march=armv5te")
+
+
 include_directories(/usr/local/include)
 link_directories(/usr/local/lib)
 set(CMAKE_C_STANDARD 99)
