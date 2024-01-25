@@ -187,6 +187,7 @@ int main(int argc, char *argv[]) {
     MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
     conn_opts.username = USERNAME;
     conn_opts.password = PASSWORD;
+    printf("Connecting to %d\n", ADDRESS);
     MQTTClient_setCallbacks(client, NULL, NULL, on_message, NULL);
     if ((rc = MQTTClient_connect(client, &conn_opts)) != MQTTCLIENT_SUCCESS) {
         printf("Failed to connect, return code %d\n", rc);
