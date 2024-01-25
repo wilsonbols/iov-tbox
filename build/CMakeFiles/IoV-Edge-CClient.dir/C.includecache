@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/root/IoV-Edge-CClient/main.c
+stdlib.h
+/root/IoV-Edge-CClient/stdlib.h
+string.h
+/root/IoV-Edge-CClient/string.h
+unistd.h
+/root/IoV-Edge-CClient/unistd.h
+stdio.h
+-
+time.h
+-
+MQTTClient.h
+/root/IoV-Edge-CClient/MQTTClient.h
+
