@@ -1,5 +1,6 @@
-## 本地运行(Ubuntu 20.04 LTS)
+#本地运行(Ubuntu 20.04 LTS)
 
+## 编译依赖
 
 - 本地环境参考这个：https://www.cnblogs.com/CltCj/articles/17661086.html
 - 安装依赖：
@@ -40,7 +41,7 @@ SET(CMAKE_SYSTEM_VERSION 1)
 SET(CMAKE_C_FLAGS "-march=armv5te")
 ```
  
-编译应用
+# 编译应用
 
 ```
  cmake -DCMAKE_TOOLCHAIN_FILE=~/mqtt-client-sdk/paho.mqtt.c/cmake/toolchain.linux-arm11.cmake   \
