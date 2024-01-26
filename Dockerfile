@@ -4,6 +4,7 @@ FROM ubuntu:22.04
 RUN apt-get update &&apt-get install build-essential gcc make cmake cmake-gui cmake-curses-gui libssl-dev gcc-arm-linux-gnueabi
 
 WORKDIR /root
+RUN mkdir /usr/local/lib/ && mkdir /usr/local/include/
 COPY /usr/local/lib/ /usr/local/lib/
 COPY /usr/local/include/ /usr/local/include/
 
