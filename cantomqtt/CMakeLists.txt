@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.28)
+cmake_minimum_required(VERSION 3.12)
 
 #find_package(eclipse-paho-mqtt-c REQUIRED)
 project(cantomqtt C)
