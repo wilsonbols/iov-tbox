@@ -1,2 +1,2 @@
 cmake . && make  
-chmod -R 777 build
+chmod -R 777 cantomqtt
