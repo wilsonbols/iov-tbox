@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 find_package(eclipse-paho-mqtt-c 1.3.13 REQUIRED)
-project(IoV-Edge-CClient C)
+project(tbox C)
 
 #compile with arm 
 SET(CMAKE_C_COMPILER arm-linux-gnueabi-gcc)
