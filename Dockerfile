@@ -5,7 +5,7 @@ RUN apt-get update && apt-get install  -y --no-install-recommends build-essentia
 
 WORKDIR /root
 RUN [ -d /usr/local/ ] || mkdir -p /usr/local/ && mkdir -p /usr/local/lib/
-COPY /usr/local/lib/* /usr/local/lib/
+COPY ./lib/* /usr/local/lib/
 
 
 ENTRYPOINT ["bash", "/root/tbox/make.sh"]
