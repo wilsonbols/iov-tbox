@@ -10,4 +10,4 @@ dist-ssr
 *.local
 cmake-build-debug
 manual-build
-can*
+can_*
