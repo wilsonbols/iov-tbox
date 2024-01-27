@@ -1,5 +1,5 @@
 #交叉编译c程序
-cd cantomqtt
+cd ~/IoV-Edge-CClient/cantomqtt
 docker run -it -v .:/root/tbox/ tbox-compiler:v4
 
 #重新生成ext4，将编译后文件放入
@@ -7,7 +7,7 @@ cd ~/qemu/
 mount ./docker/files/qemufiles/initrd_32le_v2.ext4 ~/tmp
 rm -rf  ~/tmp/iov/
 mkdir ~/tmp/iov/
-cp -rf ./cantomqtt/can* ~/tmp/iov/
+cp -rf ./IoV-Edge-CClient/cantomqtt/can* ~/tmp/iov/
 chmod -R 777 ~/tmp/iov/
 umount ~/tmp
 
