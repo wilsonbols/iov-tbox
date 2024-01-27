@@ -1,3 +1,3 @@
 cmake . 
-arm-linux-gnueabi-gcc main.c common/conversion.c -o can_mqtt -lpaho-mqtt3c -ljansson
+arm-linux-gnueabi-gcc main.c common/conversion.c -o can_mqtt -lpaho-mqtt3c -ljansson -march=armv5te
 chmod -R 777 cantomqtt
