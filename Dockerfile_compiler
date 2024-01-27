@@ -1,0 +1,15 @@
+#注意：此base文件不是使用Dockerfile_compiler.base 构建的镜像
+#注意：此基础镜像是使用Dockerfile_compiler.base构建的镜像，容器运行后，手动又重新安装了gcc-multilib，再安装gcc-arm-linux-gnueabi。
+#注意：安装后使用 git commit保存成镜像后作为本镜像的基础镜像
+#重复安装说明：安装gcc-multilib是因为不安装会提示少.h文件，但是安装后会覆盖原有的gcc-arm-linux-gnueabi，因此需要再次安装gcc-arm-linux-gnueabi。如果全部卸载dockerfile中，重复安装会报错。。。。不得已只能这样做。
+FROM tbox-compiler:latest
+
+# 先将程序编译的所有libjansson和libpaho-mqtt3a，libpaho-mqtt3c依赖库拷贝到上下文的lib目录
+WORKDIR /root/tbox
+COPY ./lib/* /usr/local/lib/
+COPY ./lib/* /usr/lib/
+#先将程序编译的所有libjansson和libpaho-mqtt3a，libpaho-mqtt3c头文件拷贝到上下文的include目录
+COPY ./include/* /usr/local/include/
+COPY ./include/* /usr/include/
+
+ENTRYPOINT ["bash", "make.sh"]
