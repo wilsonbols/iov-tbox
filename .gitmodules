@@ -1,0 +1,4 @@
+[submodule "QEMU"]
+	path = QEMU
+	url = git@codehub.devcloud.cn-north-4.huaweicloud.com:IPD-xtsbl00101/QEMU.git
+	branch = main
