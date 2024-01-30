@@ -15,7 +15,7 @@ umount ~/tmp
 
 
 #生成qemu镜像
-docker build -t swr.cn-north-4.myhuaweicloud.com/iov-workshop/can_qemu:latest ./QEMU/docker
+docker build -t swr.cn-north-4.myhuaweicloud.com/iov-workshop/can_qemu:latest $1QEMU/docker
 docker push swr.cn-north-4.myhuaweicloud.com/iov-workshop/can_qemu:latest
 
 #删除编译后的容器
