@@ -1,7 +1,7 @@
 #交叉编译c程序
 docker login -u cn-north-4@XVLLZV9P2LDL1Q47R2R5 -p 2206da3a9b99abd4bfaae36f42f590512f638e4d3125bb0c5be0e35816704941 swr.cn-north-4.myhuaweicloud.com
 pwd
-docker run -it -v $1cantomqtt/:/root/tbox/ swr.cn-north-4.myhuaweicloud.com/iov-workshop/tbox-compiler:v4
+docker run -i -v $1cantomqtt/:/root/tbox/ swr.cn-north-4.myhuaweicloud.com/iov-workshop/tbox-compiler:v4
 
 #重新生成ext4，将编译后文件放入
 cd ..
