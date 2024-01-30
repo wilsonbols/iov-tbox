@@ -15,7 +15,6 @@
 
 #生成qemu镜像
  docker build -t swr.cn-north-4.myhuaweicloud.com/iov-workshop/can_qemu:latest ./QEMU/docker
- docker login -u cn-north-4@XVLLZV9P2LDL1Q47R2R5 -p 2206da3a9b99abd4bfaae36f42f590512f638e4d3125bb0c5be0e35816704941 swr.cn-north-4.myhuaweicloud.com
  docker push swr.cn-north-4.myhuaweicloud.com/iov-workshop/can_qemu:latest
 
 #删除编译后的容器
