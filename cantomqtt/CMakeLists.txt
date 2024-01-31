@@ -10,6 +10,7 @@ SET(CMAKE_SYSTEM_NAME Linux)
 SET(CMAKE_SYSTEM_PROCESSOR arm)
 # Version of the system
 SET(CMAKE_SYSTEM_VERSION 1)
+# 设置交叉编译参数
 SET(CMAKE_C_FLAGS "-march=armv5te")
 
 include_directories(/usr/local/include)

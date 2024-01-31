@@ -2,6 +2,9 @@
 
 ## 编译依赖
 
+说明：目前所有编译依赖已经被打入镜像swr.cn-north-4.myhuaweicloud.com/iov-workshop/tbox-compiler:v4。
+
+
 - 本地环境参考这个：https://www.cnblogs.com/CltCj/articles/17661086.html
 - 安装依赖：
 
@@ -23,23 +26,6 @@ mkdir ~/mqtt-client-sdk && cd ~/mqtt-client-sdk
 git clone https://github.com/eclipse/paho.mqtt.c.git # 也可以使用国内的镜像:https://gitee.com/mirrors/paho.mqtt.c.git
 cd paho.mqtt.c
 ```
-
-编辑 **cmake/toolchain.linux-arm11.cmake**，使用和qemu相同的架构编译器
-
-```
-# path to compiler and utilities
-# specify the cross compiler
-SET(CMAKE_C_COMPILER arm-linux-gnueabi-gcc)
-
-# Name of the target platform
-SET(CMAKE_SYSTEM_NAME Linux)
-SET(CMAKE_SYSTEM_PROCESSOR arm)
-
-# Version of the system
-SET(CMAKE_SYSTEM_VERSION 1)
-
-SET(CMAKE_C_FLAGS "-march=armv5te")
-```
  
 编译
 
@@ -50,31 +36,6 @@ SET(CMAKE_C_FLAGS "-march=armv5te")
        ~/mqtt-client-sdk/paho.mqtt.c
 make 
 make install
-```
-
-记得将输出的所有文件拷贝到ext4中
-
-```
-Installing: /usr/local/lib/libpaho-mqtt3c.so.1.3.13
--- Installing: /usr/local/lib/libpaho-mqtt3c.so.1
--- Installing: /usr/local/lib/libpaho-mqtt3c.so
--- Installing: /usr/local/lib/libpaho-mqtt3a.so.1.3.13
--- Installing: /usr/local/lib/libpaho-mqtt3a.so.1
--- Installing: /usr/local/lib/libpaho-mqtt3a.so
--- Installing: /usr/local/bin/MQTTVersion
--- Set runtime path of "/usr/local/bin/MQTTVersion" to ""
--- Installing: /usr/local/lib/libpaho-mqtt3c.a
--- Installing: /usr/local/lib/libpaho-mqtt3a.a
--- Installing: /usr/local/include/MQTTAsync.h
--- Installing: /usr/local/include/MQTTClient.h
--- Installing: /usr/local/include/MQTTClientPersistence.h
--- Installing: /usr/local/include/MQTTProperties.h
--- Installing: /usr/local/include/MQTTReasonCodes.h
--- Installing: /usr/local/include/MQTTSubscribeOpts.h
--- Installing: /usr/local/include/MQTTExportDeclarations.h
--- Installing: /usr/local/lib/cmake/eclipse-paho-mqtt-c/eclipse-paho-mqtt-cConfig.cmake
--- Installing: /usr/local/lib/cmake/eclipse-paho-mqtt-c/eclipse-paho-mqtt-cConfig-noconfig.cmake
--- Installing: /usr/local/lib/cmake/eclipse-paho-mqtt-c/eclipse-paho-mqtt-cConfigVersion.cmake
 ```
 
 ## 编译样例程序
