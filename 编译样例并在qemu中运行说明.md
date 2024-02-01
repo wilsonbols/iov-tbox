@@ -8,6 +8,7 @@ host 机器，最好是一台 x86-64 的 ubuntu linux 主机。我测试的环�
 sudo apt-get install -y linux-modules-extra-$(uname -r)
 
 #安装配置vcan设备
+modprobe vcan
 ip link add dev vcan0 type vcan
 ip link set vcan0 up
 
