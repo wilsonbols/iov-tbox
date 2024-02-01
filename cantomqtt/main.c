@@ -16,7 +16,7 @@
 
 #define DEBUG       0
 
-#define ADDRESS     "tcp://192.168.2.128:31006"
+#define ADDRESS     "tcp://192.168.2.128:6388"
 #define USERNAME    "emqx"
 #define PASSWORD    "public"
 #define CLIENTID    "c-client-vehicle"
