@@ -15,7 +15,7 @@ ip link set vcan0 up
 #添加网卡设置，以便qemu可以通过ip访问host端口
 ip tuntap add dev tap0 mode tap
 ip link set dev tap0 up
-ip address add dev tap0 192.168.2.128/24
+ip address add dev tap0 192.168.181.128/24
 
 ```
 
