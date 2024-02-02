@@ -92,13 +92,13 @@ char* cansend_cardoor(char* json_string) {
         exit(EXIT_FAILURE);
     }
 
-    /* 指定can0设备 */
+    /* 指定vcan0设备 */
     strcpy(ifr.ifr_name, "vcan0");
     ioctl(sockfd, SIOCGIFINDEX, &ifr);
     can_addr.can_family = AF_CAN;
     can_addr.can_ifindex = ifr.ifr_ifindex;
 
-    /* 将can0与套接字进行绑定 */
+    /* 将vcan0与套接字进行绑定 */
     ret = bind(sockfd, (struct sockaddr *)&can_addr, sizeof(can_addr));
     if (0 > ret) {
         perror("bind error");
