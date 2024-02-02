@@ -1,7 +1,3 @@
-/***************************************************************
-
-***************************************************************/
-
 
 
 #include <stdio.h>
@@ -13,7 +9,7 @@
 #include <linux/can.h>
 #include <linux/can/raw.h>
 #include <net/if.h>
-#include "common/conversion.h"  // 包含转换函数的头文件
+#include "control.h"  // 包含转换函数的头文件
 
 
 
@@ -39,7 +35,7 @@ int main(void)
     }
 
     /* 指定can0设备 */
-    strcpy(ifr.ifr_name, "can0");
+    strcpy(ifr.ifr_name, "vcan0");
     ioctl(sockfd, SIOCGIFINDEX, &ifr);
     can_addr.can_family = AF_CAN;
     can_addr.can_ifindex = ifr.ifr_ifindex;
@@ -54,23 +50,6 @@ int main(void)
 
     /* 设置过滤规则：不接受任何报文、仅发送数据 */
     setsockopt(sockfd, SOL_CAN_RAW, CAN_RAW_FILTER, NULL, 0);
-
-    // 模拟随机转速
- //   int engineRPM = generateRandomRPM();
-
-    /* 发送数据 */
-    //frame.data[0] = 0x0B;   //一个字节的范围是 0 到 255
-    //frame.data[1] = 0xB8;
-
-//    frame.data[0] = (engineRPM >> 8) & 0xFF;  // 发动机转数的高字节
-//    frame.data[1] = engineRPM & 0xFF;         // 发动机转数的低字节
-//    frame.data[2] = 0xC0;
-//    frame.data[3] = 0xD0;
-//    frame.data[4] = 0xE0;
-//    frame.data[5] = 0xF0;
-//    frame.can_dlc = 6;	//一次发送6个字节数据
-//    frame.can_id = 0x123;//帧ID为 0x123,标准帧
-
 
 
     for ( ; ; ) {
@@ -90,9 +69,6 @@ int main(void)
         frame.can_id = 0x123;//帧ID为 0x123,标准帧
 
 
-
-
-
         ret = write(sockfd, &frame, sizeof(frame)); //发送数据
         if(sizeof(frame) != ret) { //如果ret不等于帧长度，就说明发送失败
             perror("write error");
@@ -102,7 +78,7 @@ int main(void)
         // 调用函数获取时间字符串
         char *beijingTime = getBeijingTime();
         // 输出时间字符串
-        printf("%s ------发送数据\n", beijingTime);
+        printf("%s ------发送数据data[0] `%d` data[1] `%d` data[2] `%d` data[3] `%d`\n", beijingTime,frame.data[0],frame.data[1],frame.data[2],frame.data[3]);
         // printf(" 发送数据\n");
         sleep(20);		//一秒钟发送一次
     }

@@ -1,4 +1,3 @@
-// conversion.c
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,14 +12,30 @@
 #include <jansson.h>
 
 // 函数声明
+char* getEnvVariable(char* envVarName);
 char* decimalToHexadecimal(int decimalValue);
 char* getBeijingTime();
-char* write_can_temperature(char *json_string);
-int gettemperature(char *json);
+char* cansend_cardoor(char* json_string);
+int gettemperature(char* json);
 char* getcollision(int index);
 char* getlocation(int index);
 int getRand2();
 int getRand99();
+
+// 函数定义
+char* getEnvVariable(char* envVarName) {
+    // 使用 getenv 获取环境变量的值
+     char *envVarValue = getenv(envVarName);
+    // 检查环境变量是否存在
+    if (envVarValue != NULL) {
+        printf("Env Value of %s: %s\n", envVarName, envVarValue);
+    } else {
+        printf("%s is not defined.\n", envVarName);
+    }
+    return envVarValue;
+}
+
+
 // 函数定义
 char* decimalToHexadecimal(int decimalValue) {
     // 计算所需的字符串长度
@@ -34,10 +49,6 @@ char* decimalToHexadecimal(int decimalValue) {
 
     return hexString;
 }
-
-
-
-
 
 char* getBeijingTime() {
     // 获取当前时间
@@ -64,10 +75,8 @@ char* getBeijingTime() {
     return dateTimeString;
 }
 
-
-
-// 写入温度数据到can总线
-char* write_can_temperature(char *json_string) {
+// 写入数据到can总线
+char* cansend_cardoor(char* json_string) {
 
 
     struct ifreq ifr = {0};
@@ -106,20 +115,24 @@ char* write_can_temperature(char *json_string) {
     json_t *root = json_loads(json_string, 0, &error);
 
     if (root) {
-        const char *canid = json_string_value(json_object_get(root, "canid"));
-        if (strcasecmp(canid, "0x200") == 0) {
+        const char *vin = json_string_value(json_object_get(root, "vin"));
+        const char *device = json_string_value(json_object_get(root, "device"));
+        const char *action = json_string_value(json_object_get(root, "action"));
 
-            int temp= gettemperature(json_string);
-            /* 发送数据 */
-            frame.data[0] = (temp >> 8) & 0xFF;  // 温度的高字节
-            frame.data[1] = temp & 0xFF;         // 温度的低字节
-            frame.data[2] = 0xC0;
-            frame.data[3] = 0xD0;
-//        frame.data[4] = 0xE0;
-//        frame.data[5] = 0xF0;
+        if (strcasecmp(action, "open") == 0) {
+            frame.data[0] = 0x1;
+            frame.data[1] = 0x1;
+        }
+        else
+        {
+            frame.data[0] = 0x1;
+            frame.data[1] = 0x0;
+        }
+
+            frame.data[2] = 0x0;
+            frame.data[3] = 0x0;
             frame.can_dlc = 4;	//一次发送6个字节数据
-            frame.can_id = 0x200;//帧ID为 0x200,标准帧 表示温度
-
+            frame.can_id = 0x200;//帧ID为 0x200,标准帧
 
             ret = write(sockfd, &frame, sizeof(frame)); //发送数据
             if(sizeof(frame) != ret) { //如果ret不等于帧长度，就说明发送失败
@@ -130,9 +143,7 @@ char* write_can_temperature(char *json_string) {
             // 调用函数获取时间字符串
             char *beijingTime = getBeijingTime();
             // 输出时间字符串
-            printf("%s ------发送温度数据到can总线\n", beijingTime);
-
-        }
+            printf("%s ------获取远程数据发送到can总线:data[0] `%d` data[1] `%d`\n\n", beijingTime,frame.data[0],frame.data[1]);
 
         json_decref(root);
     } else {
@@ -145,8 +156,8 @@ char* write_can_temperature(char *json_string) {
     //exit(EXIT_SUCCESS);
 }
 
-// 解析获得温度
-int gettemperature(char *json_string) {
+// 解析
+int gettemperature(char* json_string) {
     //const char *json_string = "{\"canid\": \"0x200\",\"temperature\": \"25\"}";
 
     json_error_t error;
@@ -178,15 +189,12 @@ int gettemperature(char *json_string) {
     return 0;
 }
 
-
-
 //
 char* getcollision(int index) {
     // 三个可能的事件
      char* events[] = {"气囊弹出", "车辆侧翻", "车辆涉水"};
     return events[index];
 }
-
 
 //
 char* getlocation(int index) {
@@ -304,7 +312,6 @@ int getRand2() {
     int result = randomValue % 3;
     return result;
 }
-
 
 //
 int getRand99() {

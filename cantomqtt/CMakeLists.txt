@@ -1,17 +1,7 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.28)
 
 #find_package(eclipse-paho-mqtt-c REQUIRED)
 project(cantomqtt C)
-
-#compile with arm 
-SET(CMAKE_C_COMPILER arm-linux-gnueabi-gcc)
-# Name of the target platform
-SET(CMAKE_SYSTEM_NAME Linux)
-SET(CMAKE_SYSTEM_PROCESSOR arm)
-# Version of the system
-SET(CMAKE_SYSTEM_VERSION 1)
-# 设置交叉编译参数
-SET(CMAKE_C_FLAGS "-march=armv5te")
 
 include_directories(/usr/local/include)
 link_directories(/usr/local/lib)
@@ -22,9 +12,7 @@ LINK_LIBRARIES(m pthread)
 file(REMOVE_RECURSE "cmake-build-debug")
 
 
-#add_executable(cantomqtt writecan.c common/conversion.c)
-
-add_executable(cantomqtt main.c common/conversion.c)
+add_executable(cantomqtt mqtt.c control.c collision.c)
 
 find_library(PAHO_MQTT3C_LIB paho-mqtt3c PATHS /usr/local/lib)
 target_link_libraries(cantomqtt ${PAHO_MQTT3C_LIB})

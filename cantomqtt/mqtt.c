@@ -1,28 +1,20 @@
 #include "stdlib.h"
 #include "string.h"
-#include "unistd.h"
 #include <stdio.h>
 #include <time.h>
-
-
-#include <sys/ioctl.h>
-#include <sys/socket.h>
-#include <linux/can.h>
-#include <net/if.h>
-#include <jansson.h>
 #include "MQTTClient.h"
-#include "common/conversion.h"  // 包含转换函数的头文件
-
+#include "control.h"
+#include "collision.h"
 
 #define DEBUG       0
 
-#define ADDRESS     "tcp://192.168.181.128:1883"
-#define USERNAME    "emqx"
+#define ADDRESS     "tcp://vincentwei.southeastasia.cloudapp.azure.com:1883"
+#define USERNAME    "admin"
 #define PASSWORD    "public"
 #define CLIENTID    "c-client-vehicle"
 #define QOS         0
-#define TOPIC_WARNING       "vehicle-warning" //emqx/c-test
-#define TOPIC_INFO       "vehicle_collision" // vehicle-info
+#define VEHICLE_CONTROL       "vehicle_control"
+#define VEHICLE_COLLISION       "vehicle_collision"
 #define TIMEOUT     10000L
 
 // 发布消息
@@ -49,7 +41,7 @@ int on_message(void *context, char *topicName, int topicLen, MQTTClient_message 
     printf("%s------Received `%s` from `%s` topic \n",beijingTime, payload, topicName);
 
     //解析mqtt传入json，并发送到can
-    write_can_temperature(payload);
+    cansend_cardoor(payload);
 
     MQTTClient_freeMessage(&message);
     MQTTClient_free(topicName);
@@ -127,7 +119,7 @@ int send_file(MQTTClient client,
         printf("Publishing initial message to topic %s\n", topic);
         printf("Payload: %s\n", payload);
     }
-    rc = MQTTClient_publish(client, TOPIC_INFO, strlen(payload), payload, 1, 0, &token);
+    rc = MQTTClient_publish(client, VEHICLE_COLLISION, strlen(payload), payload, 1, 0, &token);
     if (rc != MQTTCLIENT_SUCCESS) {
         printf("Failed to publish message, return code %d\n", rc);
         return -1;
@@ -152,7 +144,7 @@ int send_file(MQTTClient client,
         if (DEBUG) {
             printf("Publishing file chunk to topic %s offset %lu\n", topic, offset);
         }
-        rc = MQTTClient_publish(client, TOPIC_INFO, read_bytes, payload, 1, 0, &token);
+        rc = MQTTClient_publish(client, VEHICLE_COLLISION, read_bytes, payload, 1, 0, &token);
         if (rc != MQTTCLIENT_SUCCESS) {
             printf("Failed to publish file chunk, return code %d\n", rc);
             return -1;
@@ -183,7 +175,7 @@ int send_file(MQTTClient client,
     if (DEBUG) {
         printf("Publishing final message to topic %s\n", topic);
     }
-    rc = MQTTClient_publish(client, TOPIC_INFO, 0, "", 1, 0, &token);
+    rc = MQTTClient_publish(client, VEHICLE_COLLISION, 0, "", 1, 0, &token);
     if (rc != MQTTCLIENT_SUCCESS) {
         printf("Failed to publish final message, return code %d\n", rc);
         return -1;
@@ -193,7 +185,7 @@ int send_file(MQTTClient client,
         printf("Failed to publish final message, return code %d\n", rc);
         return -1;
     }
-    printf("json file message publish to topic %s completed,the content is: \n",TOPIC_INFO);
+    printf("json file message publish to topic %s completed,the content is: \n",VEHICLE_COLLISION);
     printf("%s\n",payload);
     return 0;
 }
@@ -214,7 +206,7 @@ int main(int argc, char *argv[]) {
         printf("Connected to MQTT Broker!\n");
     }
     // subscribe topic
-    MQTTClient_subscribe(client, TOPIC_WARNING, QOS);
+    MQTTClient_subscribe(client, VEHICLE_CONTROL, QOS);
 
 
     // Calculate expire time
@@ -224,154 +216,9 @@ int main(int argc, char *argv[]) {
     char *file_path = "/app/code/cl/vehicle-info.json";
     char *file_id = "wenjie-m7";
 
-    //获取can数据start
-    // -------------------------------------------------------------
-
-    struct ifreq ifr = {0};
-    struct sockaddr_can can_addr = {0};
-    struct can_frame frame = {0};
-    int sockfd = -1;
-    int i;
-    int ret;
-
-    /* 打开套接字 */
-    sockfd = socket(PF_CAN, SOCK_RAW, CAN_RAW);
-    if(0 > sockfd) {
-        perror("socket error");
-        exit(EXIT_FAILURE);
-    }
-
-    /* 指定can0设备 */
-    strcpy(ifr.ifr_name, "vcan0");
-    ioctl(sockfd, SIOCGIFINDEX, &ifr);
-    can_addr.can_family = AF_CAN;
-    can_addr.can_ifindex = ifr.ifr_ifindex;
-
-    /* 将can0与套接字进行绑定 */
-    ret = bind(sockfd, (struct sockaddr *)&can_addr, sizeof(can_addr));
-    if (0 > ret) {
-        perror("bind error");
-        close(sockfd);
-        exit(EXIT_FAILURE);
-    }
-
-    /* 设置过滤规则 */
-    //setsockopt(sockfd, SOL_CAN_RAW, CAN_RAW_FILTER, NULL, 0);
-
-    /* 接收数据 */
-    for ( ; ; ) {
-        if (0 > read(sockfd, &frame, sizeof(struct can_frame))) {
-            perror("read error");
-            break;
-        }
-
-        /* 校验是否接收到错误帧 */
-        if (frame.can_id & CAN_ERR_FLAG) {
-            printf("Error frame!\n");
-            break;
-        }
-
-        /* 校验帧格式 */
-        if (frame.can_id & CAN_EFF_FLAG)	//扩展帧
-            printf("扩展帧 <0x%08x> ", frame.can_id & CAN_EFF_MASK);
-        else		//标准帧
-            printf("标准帧 <0x%03x> ", frame.can_id & CAN_SFF_MASK);
-
-        /* 校验帧类型：数据帧还是远程帧 */
-        if (frame.can_id & CAN_RTR_FLAG) {
-            printf("remote request\n");
-            continue;
-        }
-
-        /* 打印数据长度 */
-        printf("[%d] ", frame.can_dlc);
-
-        /* 打印数据 */
-        for (i = 0; i < frame.can_dlc; i++){
-            printf("%02x ", frame.data[i]);
-        }
-        printf("\n");
-
-        // 调用函数获取时间字符串
-        char *beijingTime = getBeijingTime();
-        //发动机转速
-        if (frame.can_id == 0x123) {
-
-            // 解析发动机转数数据
-            int engineRPM = (frame.data[0] << 8) | frame.data[1];
-            //printf("%s------Received Engine RPM: %d\n", beijingTime, engineRPM);
-            //printf("%s------Received data[2]: %d\n", beijingTime, frame.data[2]);
-            //printf("%s------Received data[3]: %d\n", beijingTime, frame.data[3]);
-            char prmstr[50];
-
-            // 使用 sprintf 函数将整数转换为字符串
-            sprintf(prmstr, "车辆发动机转速:%d", engineRPM);
-
-            // 创建 JSON 对象
-            json_t *root = json_object();
-            // 添加键值对到 JSON 对象
-            json_object_set_new(root, "vin", json_string("NH2FX13D223ES1340"));
-            json_object_set_new(root, "collisioninfo", json_string(getcollision(frame.data[2])));
-            json_object_set_new(root, "locationinfo", json_string(getlocation(frame.data[3])));
-            json_object_set_new(root, "descriptioninfo", json_string(prmstr));
-
-            // 将 JSON 对象转换为字符串
-            char *jsonString = json_dumps(root, JSON_ENCODE_ANY);
-
-            // 输出 JSON 字符串
-            //printf("%s\n", jsonString);
-
-
-
-            //char jsonStr[300];
-            // publish message to broker
-            //sprintf(jsonStr, "{\"vin\":\"LSVHJ133022221761\",""\"rpm\": \"%d\"}", engineRPM);
-            publish(client, TOPIC_INFO, jsonString);
-
-            // Send file
-//            int result = send_file(client,
-//                                   file_path,
-//                                   file_id,
-//                                   file_name,
-//                                   expire_time_s_since_epoch,
-//                                   5);
-
-            // 释放内存
-            free(jsonString);
-            json_decref(root);
-
-
-        }
-
-        // 判断 CAN ID 是否为 0x200
-        if (frame.can_id == 0x200) {
-            // 解析空调温度数据
-            int temperature = (frame.data[0] << 8) | frame.data[1];
-            printf("%s------通过can_id从can总线接收空调温度: %d°C\n",beijingTime, temperature);
-
-        }
-
-
-
-
-
-        printf("\n");
-        sleep(20);   //延迟
-
-    }
-    /* 关闭套接字 */
-    close(sockfd);
+    readcansimulate( client, VEHICLE_COLLISION);
 
     MQTTClient_disconnect(client, TIMEOUT);
     MQTTClient_destroy(&client);
-
-    exit(EXIT_SUCCESS);
-
-    //---------------------------------------------------------------
-    //获取can数据end
-
     return rc;
-
-
-
 }
