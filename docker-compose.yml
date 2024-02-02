@@ -1,0 +1,9 @@
+version: '2'
+
+services:
+
+  tbox:
+    image: docker-server/docker-org/can_qemu:image-version
+    container_name: tbox
+    privileged: true
+    network_mode: "host"
