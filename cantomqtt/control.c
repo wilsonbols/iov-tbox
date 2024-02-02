@@ -93,7 +93,7 @@ char* cansend_cardoor(char* json_string) {
     }
 
     /* 指定can0设备 */
-    strcpy(ifr.ifr_name, "can0");
+    strcpy(ifr.ifr_name, "vcan0");
     ioctl(sockfd, SIOCGIFINDEX, &ifr);
     can_addr.can_family = AF_CAN;
     can_addr.can_ifindex = ifr.ifr_ifindex;
