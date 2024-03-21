@@ -54,4 +54,54 @@ cd manual-build
 ## 本代码库根据这个代码库修改而来
 https://github.com/leansoftX/code-arts-mqtt-client-demo.git
 
+mkdir build
+cd build
+cmake ..
+make
+
+#重新生成ext4，将编译后文件放入
+cd ~/qemu/
+mount ./docker/files/qemufiles/initrd_32le_v2.ext4 ~/tmp
+rm -rf  ~/tmp/iov/
+mkdir ~/tmp/iov/
+cp -rf ~/IoV-Edge-CClient/cantomqtt/can* ~/tmp/iov/
+chmod -R 777 ~/tmp/iov/
+umount ~/tmp
+
+
+#在host虚拟机上添加虚拟can设备
+modprobe vcan
+ip link add dev vcan0 type vcan
+ip link set vcan0 up
+
+#在host虚拟机上添加与qemu通信的网卡设置
+ip tuntap add dev tap0 mode tap
+ip link set dev tap0 up
+ip address add dev tap0 192.168.181.128/24
+
+#在qemu中添加网卡设置，以便和host通信
+ip addr add 192.168.181.129/24 dev eth0
+ip link set eth0 up
+
+ping 192.168.181.128
+
+
+#交叉式c程序编译容器生成，（在root账户的 ~/images下有生成镜像初始文件）
+docker build -t tbox-compiler:v4 .
+#在源代码所在目录 交叉式编译c程序
+docker run -it -v .:/root/tbox/ tbox-compiler:v4
+
+
+docker pull swr.cn-north-4.myhuaweicloud.com/iov-workshop/
+
+#生成qemu运行
+docker build -t can_qemu:v3 ./docker
+docker run -d --network=host --privileged can_qemu:v3
+
+
+cansend vcan0  123#0D54024AE0F0
+cansend vcan0  123#06C40127E0F0
+cansend vcan0  123#1A4E0023E0F0
+cansend vcan0  123#11430129E0F0
+cansend vcan0  123#0F710019E0F0
 
