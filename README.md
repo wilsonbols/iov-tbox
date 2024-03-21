@@ -59,6 +59,9 @@ cd build
 cmake ..
 make
 
+
+```
+
 #重新生成ext4，将编译后文件放入
 cd ~/qemu/
 mount ./docker/files/qemufiles/initrd_32le_v2.ext4 ~/tmp
