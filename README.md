@@ -63,6 +63,7 @@ make
 ```
 
 ## 重新生成ext4，将编译后文件放入
+```
 cd ~/qemu/
 mount ./docker/files/qemufiles/initrd_32le_v2.ext4 ~/tmp
 rm -rf  ~/tmp/iov/
@@ -70,7 +71,7 @@ mkdir ~/tmp/iov/
 cp -rf ~/IoV-Edge-CClient/cantomqtt/can* ~/tmp/iov/
 chmod -R 777 ~/tmp/iov/
 umount ~/tmp
-
+```
 
 ## 在host虚拟机上添加虚拟can设备
 ```
