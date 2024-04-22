@@ -1,4 +1,4 @@
-#本地运行(Ubuntu 20.04 LTS)
+# 本地运行(Ubuntu 20.04 LTS)
 
 ## 编译依赖
 
@@ -62,7 +62,7 @@ make
 
 ```
 
-#重新生成ext4，将编译后文件放入
+## 重新生成ext4，将编译后文件放入
 cd ~/qemu/
 mount ./docker/files/qemufiles/initrd_32le_v2.ext4 ~/tmp
 rm -rf  ~/tmp/iov/
@@ -72,17 +72,19 @@ chmod -R 777 ~/tmp/iov/
 umount ~/tmp
 
 
-#在host虚拟机上添加虚拟can设备
+## 在host虚拟机上添加虚拟can设备
+
 modprobe vcan
 ip link add dev vcan0 type vcan
 ip link set vcan0 up
 
-#在host虚拟机上添加与qemu通信的网卡设置
+## 在host虚拟机上添加与qemu通信的网卡设置
 ip tuntap add dev tap0 mode tap
 ip link set dev tap0 up
 ip address add dev tap0 192.168.181.128/24
 
-#在qemu中添加网卡设置，以便和host通信
+## 在qemu中添加网卡设置，以便和host通信
+
 ip addr add 192.168.181.129/24 dev eth0
 ip link set eth0 up
 
@@ -97,14 +99,19 @@ docker run -it -v .:/root/tbox/ tbox-compiler:v4
 
 docker pull swr.cn-north-4.myhuaweicloud.com/iov-workshop/
 
-#生成qemu运行
+## 生成qemu运行
+
 docker build -t can_qemu:v3 ./docker
 docker run -d --network=host --privileged can_qemu:v3
 
 
 cansend vcan0  123#0D54024AE0F0
+
 cansend vcan0  123#06C40127E0F0
+
 cansend vcan0  123#1A4E0023E0F0
+
 cansend vcan0  123#11430129E0F0
+
 cansend vcan0  123#0F710019E0F0
 
