@@ -73,37 +73,42 @@ umount ~/tmp
 
 
 ## 在host虚拟机上添加虚拟can设备
-
+```
 modprobe vcan
 ip link add dev vcan0 type vcan
 ip link set vcan0 up
+```
 
 ## 在host虚拟机上添加与qemu通信的网卡设置
+```
 ip tuntap add dev tap0 mode tap
 ip link set dev tap0 up
 ip address add dev tap0 192.168.181.128/24
+```
 
 ## 在qemu中添加网卡设置，以便和host通信
-
+```
 ip addr add 192.168.181.129/24 dev eth0
 ip link set eth0 up
 
 ping 192.168.181.128
+```
 
+## 交叉式c程序编译容器生成，（在root账户的 ~/images下有生成镜像初始文件）
 
-#交叉式c程序编译容器生成，（在root账户的 ~/images下有生成镜像初始文件）
 docker build -t tbox-compiler:v4 .
-#在源代码所在目录 交叉式编译c程序
-docker run -it -v .:/root/tbox/ tbox-compiler:v4
 
+## 在源代码所在目录 交叉式编译c程序
+
+docker run -it -v .:/root/tbox/ tbox-compiler:v4
 
 docker pull swr.cn-north-4.myhuaweicloud.com/iov-workshop/
 
 ## 生成qemu运行
-
+```
 docker build -t can_qemu:v3 ./docker
 docker run -d --network=host --privileged can_qemu:v3
-
+```
 
 cansend vcan0  123#0D54024AE0F0
 
