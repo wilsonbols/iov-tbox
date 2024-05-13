@@ -19,20 +19,20 @@ int main(void)
     int i;
     int ret;
 
-    /* 打开套接字 */
+    /* open socket */
     sockfd = socket(PF_CAN, SOCK_RAW, CAN_RAW);
     if(0 > sockfd) {
         perror("socket error");
         exit(EXIT_FAILURE);
     }
 
-    /* 指定can0设备 */
+    /* set can device */
     strcpy(ifr.ifr_name, "vcan0");
     ioctl(sockfd, SIOCGIFINDEX, &ifr);
     can_addr.can_family = AF_CAN;
     can_addr.can_ifindex = ifr.ifr_ifindex;
 
-    /* 将can0与套接字进行绑定 */
+    /*  bind can0 to the socket */ 
     ret = bind(sockfd, (struct sockaddr *)&can_addr, sizeof(can_addr));
     if (0 > ret) {
         perror("bind error");
@@ -43,46 +43,46 @@ int main(void)
     /* 设置过滤规则 */
     //setsockopt(sockfd, SOL_CAN_RAW, CAN_RAW_FILTER, NULL, 0);
 
-    /* 接收数据 */
+   /* Receive data */
     for ( ; ; ) {
         if (0 > read(sockfd, &frame, sizeof(struct can_frame))) {
             perror("read error");
             break;
         }
 
-        /* 校验是否接收到错误帧 */
+        /* Check if an error frame is received */
         if (frame.can_id & CAN_ERR_FLAG) {
             printf("Error frame!\n");
             break;
         }
 
-        /* 校验帧格式 */
-        if (frame.can_id & CAN_EFF_FLAG)	//扩展帧
-            printf("扩展帧 <0x%08x> ", frame.can_id & CAN_EFF_MASK);
-        else		//标准帧
-            printf("标准帧 <0x%03x> ", frame.can_id & CAN_SFF_MASK);
+        /* Check frame format */
+        if (frame.can_id & CAN_EFF_FLAG) //Extended frame
+            printf("Extended frame <0x%08x> ", frame.can_id & CAN_EFF_MASK);
+        else //Standard frame
+            printf("Standard frame <0x%03x> ", frame.can_id & CAN_SFF_MASK);
 
-        /* 校验帧类型：数据帧还是远程帧 */
+        /* Check frame type: data frame or remote frame */
         if (frame.can_id & CAN_RTR_FLAG) {
             printf("remote request\n");
             continue;
         }
 
-        /* 打印数据长度 */
+        /* Print data length */
         printf("[%d] ", frame.can_dlc);
 
-        /* 打印数据 */
+        /* Print data */
         for (i = 0; i < frame.can_dlc; i++){
             printf("%02x ", frame.data[i]);
         }
         printf("\n");
-        // 解析发动机转数数据
+        // Parse engine RPM data
         int engineRPM = (frame.data[0] << 8) | frame.data[1];
         printf("Received Engine RPM: %d\n", engineRPM);
         //printf("\n");
     }
 
-    /* 关闭套接字 */
+    /* Close socket */
     close(sockfd);
     exit(EXIT_SUCCESS);
 }

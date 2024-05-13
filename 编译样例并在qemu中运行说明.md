@@ -1,18 +1,17 @@
-#环境准备
+#Environment Preparation
 
-这里用到了三个运行环境： host , docker container , qemu
-host 机器，最好是一台 x86-64 的 ubuntu linux 主机。我测试的环境是 Ubuntu 22.04, kernel 为 5.15
+Three running environments are used here: host, docker container, and qemu. The host machine is best an x86-64 Ubuntu Linux host. The environment I tested is Ubuntu 22.04, kernel 5.15.
 
 ```
-# 注意：如果使用Azure服务器，需要执行下面命令：
+# Note: If you are using an Azure server, you need to execute the following command:
 sudo apt-get install -y linux-modules-extra-$(uname -r)
 
-#安装配置vcan设备
+# Install and configure vcan device
 modprobe vcan
 ip link add dev vcan0 type vcan
 ip link set vcan0 up
 
-#添加网卡设置，以便qemu可以通过ip访问host端口
+# Add network card settings so that qemu can access host ports via ip
 ip tuntap add dev tap0 mode tap
 ip link set dev tap0 up
 ip address add dev tap0 192.168.181.128/24
@@ -20,45 +19,45 @@ ip address add dev tap0 192.168.181.128/24
 ```
 
 
-#编译样例程序并生成镜像，推送到镜像仓库
+#Compile the sample program and generate the image, push it to the image repository
 
-下载代码库 IoV-TBox 和 IoV-Deploy
+Download the code repository IoV-TBox and IoV-Deploy
 
 ```
-git clone --recuresive [IoV-TBox ssh URL]
-git clone [IoV-Deploy  ssh URL]
+git clone --recursive [IoV-TBox ssh URL]
+git clone [IoV-Deploy ssh URL]
 ```
 
 
 ```
 cd IoV-TBox
 
-#编译cpp程序，只做qemu镜像，推送到swr
+# Compile the cpp program, only do qemu image, push to swr
 ./build_qemu.sh
 
 cd ../IoV-Deploy
-#修改 can_mqtt的镜像版本
+# Modify the image version of can_mqtt
 vim docker-compose-all.yml
 
 docker-compose -f docker-compose-all.yml up -d
 
 ```
-启动后可以通过如下地址访问safeplatform页面
+After starting, you can access the safeplatform page via the following address:
 http://[vmip]:8088
 
-登录到vm中模拟设备发送can信号
+Log in to the vm to simulate the device sending can signals
 
 ```
-#如果未安装 can-utils
+# If can-utils is not installed
 apt-get update
 apt-get install can-utils
 
-cansend vcan0  123#0D54024AE0F0
-cansend vcan0  123#06C40127E0F0
-cansend vcan0  123#1A4E0023E0F0
-cansend vcan0  123#11430101E0F0
-cansend vcan0  123#0DB60102E0F0
-cansend vcan0  123#0F710119E0F0
+cansend vcan0 123#0D54024AE0F0
+cansend vcan0 123#06C40127E0F0
+cansend vcan0 123#1A4E0023E0F0
+cansend vcan0 123#11430101E0F0
+cansend vcan0 123#0DB60102E0F0
+cansend vcan0 123#0F710119E0F0
 ```
 
-发送模拟信号后在前台页面应该可以看到事故信息
+After sending simulated signals, you should be able to see accident information on the front-end page.

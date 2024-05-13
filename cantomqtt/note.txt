@@ -1,13 +1,13 @@
 
 
-安装解析json依赖库
+Install JSON parsing dependency library
 sudo apt-get install libjansson-dev
 
-或者下载
+Alternatively, download from:
 https://github.com/akheron/jansson/releases/download/v2.14/jansson-2.14.tar.gz
 https://github.com/akheron/jansson
 
-执行安装
+Execute installation:
 ./configure
 make
 make install
@@ -17,17 +17,17 @@ make install
 
 
 
-编译二进制
+Compile binary: 
 gcc writecan.c common/conversion.c -o can_write -ljansson
 
--lpaho-mqtt3c 动态链接库
+Dynamic linking with -lpaho-mqtt3c library: 
 gcc main.c common/conversion.c -o can_mqtt -lpaho-mqtt3c -ljansson
 
 
-查看编译架构
+Check compilation architecture: 
 readelf -h can_mqtt
 
-查看can消息
+View CAN messages: 
 candump vcan0
 
 
@@ -35,7 +35,7 @@ candump vcan0
 
 
 
-从mqtt服务器发送温度json
+Send temperature JSON from MQTT server:
 {"canid": "0x200","temperature": "25"}
 
 
@@ -47,6 +47,7 @@ String vin = collisionData.getString("vin");
 				String collisioninfo = collisionData.getString("collisioninfo");
 				String descriptioninfo = collisionData.getString("descriptioninfo");
 
-警报信息发送频率改为 20 秒 一次就行。 collisioninfo   ：包含 气囊弹出，车辆侧翻，车辆涉水  这三种，每次发的时候随机选一个，位置信息写死一个字符串
+Change the frequency of sending alert information to once every 20 seconds. collisioninfo: includes airbag deployment, vehicle rollover, vehicle water immersion. Randomly select one of these each time it is sent, and the location information remains a fixed string.
 
 {"vin": "0x200","locationinfo": "北京市区","collisioninfo": "气囊弹出","descriptioninfo": "车辆熄火"}
+{"vin": "0x200","locationinfo": "Beijing City","collisioninfo": "Airbag Deployment","descriptioninfo": "Vehicle Engine Off"}

@@ -17,7 +17,7 @@
 #define VEHICLE_COLLISION       "vehicle_collision"
 #define TIMEOUT     10000L
 
-// 发布消息
+// publish message
 void publish(MQTTClient client, char *topic, char *payload) {
     MQTTClient_message message = MQTTClient_message_initializer;
     message.payload = payload;
@@ -27,20 +27,20 @@ void publish(MQTTClient client, char *topic, char *payload) {
     MQTTClient_deliveryToken token;
     MQTTClient_publishMessage(client, topic, &message, &token);
     MQTTClient_waitForCompletion(client, token, TIMEOUT);
-    // 调用函数获取时间字符串
+    //call function to get time string
     char *beijingTime = getBeijingTime();
-    // 输出
+    // printf 
     printf("%s------Send \n`%s`\n to topic `%s` \n",beijingTime, payload, topic);
 }
 
-// 接收消息
+// recieve message
 int on_message(void *context, char *topicName, int topicLen, MQTTClient_message *message) {
     char *payload = message->payload;
-    // 调用函数获取时间字符串
+    // call function to get time string
     char *beijingTime = getBeijingTime();
     printf("%s------Received `%s` from `%s` topic \n",beijingTime, payload, topicName);
 
-    //解析mqtt传入json，并发送到can
+    //parse mqtt json, and send to can
     cansend_cardoor(payload);
 
     MQTTClient_freeMessage(&message);

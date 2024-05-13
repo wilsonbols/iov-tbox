@@ -1,32 +1,32 @@
-#本地运行(Ubuntu 20.04 LTS)
+# Local Run (Ubuntu 20.04 LTS)
 
-本文档说明tbox_compiler镜像的生成方法
+This document describes the method of generating the tbox_compiler image
 
-## 编译依赖
+## Compilation Dependencies
 
-- 本地环境参考这个：https://www.cnblogs.com/CltCj/articles/17661086.html
-- 安装依赖：
+- Local environment reference this: https://www.cnblogs.com/CltCj/articles/17661086.html
+- Install dependencies:
 
 ```
 apt-get install build-essential gcc make cmake cmake-gui cmake-curses-gui
 apt-get install libssl-dev
 ```
 
-因为qemu是aarch64架构的应用，安装arm交叉编译gcC
+Since qemu is an aarch64 architecture application, install arm cross-compiling gcC
 
 ```
 apt-get install gcc-arm-linux-gnueabi
 ```
 
-下载代码库
+Download the code library
 
 ```
 mkdir ~/mqtt-client-sdk && cd ~/mqtt-client-sdk
-git clone https://github.com/eclipse/paho.mqtt.c.git # 也可以使用国内的镜像:https://gitee.com/mirrors/paho.mqtt.c.git
+git clone https://github.com/eclipse/paho.mqtt.c.git # You can also use the domestic mirror: https://gitee.com/mirrors/paho.mqtt.c.git
 cd paho.mqtt.c
 ```
 
-编辑 **cmake/toolchain.linux-arm11.cmake**，使用和qemu相同的架构编译器。
+Edit **cmake/toolchain.linux-arm11.cmake** to use the same architecture compiler as qemu.
 
 ```
 # path to compiler and utilities
@@ -42,8 +42,8 @@ SET(CMAKE_SYSTEM_VERSION 1)
 
 SET(CMAKE_C_FLAGS "-march=armv5te")
 ```
- 
-编译
+
+Compile
 
 ```
  cmake -DCMAKE_TOOLCHAIN_FILE=~/mqtt-client-sdk/paho.mqtt.c/cmake/toolchain.linux-arm11.cmake   \
@@ -54,7 +54,7 @@ make
 make install
 ```
 
-编译安装jansson依赖
+Compile and install jansson dependency
 
 ```
 wget https://github.com/akheron/jansson/releases/download/v2.13/jansson-2.13.tar.bz2
@@ -67,37 +67,34 @@ make check
 make install
 ```
 
-
-将所有编译安装后的文件拷贝到当前目录，准备生成镜像
+Copy all compiled and installed files to the current directory to prepare for image generation
 
 ```
-cd 到代码库根目录
+cd to the root directory of the code library
 mkdir lib
 cp -rf /usr/local/lib/libpaho* ./lib/
 cp -rf /usr/local/lib/ja* ./lib/
 
-# 构建一个基础镜像
+# Build a base image
 docker build -t tbox-compiler:base -f Dockerfile_compiler.base .
-# 启动镜像后重新配置依赖环境
+# Start the image and reconfigure the dependency environment
 docker run -it -d -n tc tbox-compiler:base
 docker exec -it tc bash
 apt-get update 
-#重复安装说明：安装gcc-multilib是因为不安装会提示少.h文件，但是安装后会覆盖原有的gcc-arm-linux-gnueabi，因此需要再次安装gcc-arm-linux-gnueabi。
-#            如果全部写在dockerfile中，重复安装会报错。。。。不得已只能这样做。
-FROM tbox-compiler:latest
+# Repeat the installation note: Installing gcc-multilib is because it will prompt for missing .h files, but installing it will overwrite the original gcc-arm-linux-gnueabi, so you need to install gcc-arm-linux-gnueabi again.
+# If all are written in the dockerfile, repeating the installation will cause an error. . . . So we have to do it this way.
 apt-get install gcc-multilib
 apt-get install gcc-arm-linux-gnueabi
 exit
-docker commit
+docker commit tc tbox-compiler:base
 docker build -t tbox-compiler:v4 -f Dockerfile_compiler .
 
 ```
 
-## 编译样例程序
+## Compiling Sample Programs
 
-
-```
+```bash
 ./build_qemu.sh
 
-#容器启动后的编译脚本在./cantomqtt/make.sh中
+# The compilation script after the container starts is in ./cantomqtt/make.sh
 ```

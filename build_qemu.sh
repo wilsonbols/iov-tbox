@@ -1,10 +1,10 @@
-#交叉编译c程序，编译脚本在./cantomqtt/make.sh 中。也可以使用cmake脚本
+# Cross-compile C program, build script is in ./cantomqtt/make.sh. You can also use cmake script
 
 docker login -u cn-north-4@XVLLZV9P2LDL1Q47R2R5 -p 2206da3a9b99abd4bfaae36f42f590512f638e4d3125bb0c5be0e35816704941 swr.cn-north-4.myhuaweicloud.com
 pwd
 docker run -i -v .:/root/tbox/ swr.cn-north-4.myhuaweicloud.com/iov-workshop/tbox-compiler:v4
 
-#重新生成ext4，将编译后文件放入
+# Regenerate ext4, put the compiled files into
 cd ..
 mkdir ~/tmp
 mount ./QEMU/docker/files/qemufiles/initrd_32le_v2.ext4 ~/tmp
@@ -15,9 +15,9 @@ chmod -R 777 ~/tmp/iov/
 umount ~/tmp
 
 
-#生成qemu镜像
+# Generate qemu image
 docker build -t swr.cn-north-4.myhuaweicloud.com/iov-workshop/can_qemu:latest ./QEMU/docker
 docker push swr.cn-north-4.myhuaweicloud.com/iov-workshop/can_qemu:latest
 
-#删除编译后的容器
+# Delete compiled container
 #docker rm $(docker ps -a -q --filter ancestor=$(docker images -a -q tbox-compiler:v4))
