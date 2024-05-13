@@ -1,8 +1,3 @@
-
-
-Here is the translated code:
-
-```c
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
