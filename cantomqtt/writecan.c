@@ -66,7 +66,8 @@ int main(void)
             goto out;
         }
 
-        // Call the function to get the time string        char *beijingTime = getBeijingTime();
+        // Call the function to get the time string        
+        char *beijingTime = getBeijingTime();
         // Output the time string
         printf("%s ------Sending data: data[0] `%d` data[1] `%d` data[2] `%d` data[3] `%d`\n", beijingTime, frame.data[0], frame.data[1], frame.data[2], frame.data[3]);
         // printf("Sending data\n");
