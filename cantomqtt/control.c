@@ -76,7 +76,7 @@ char* getBeijingTime() {
 // Write data to the CAN bus
 char* cansend_cardoor(char* json_string) {
 
-    /* 添加车门控制逻辑 */
+    /* open car door */
     struct ifreq ifr = {0};
     struct sockaddr_can can_addr = {0};
     struct can_frame frame = {0};
