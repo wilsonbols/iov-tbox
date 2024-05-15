@@ -17,7 +17,7 @@ add_executable(cantomqtt mqtt.c control.c collision.c)
 find_library(PAHO_MQTT3C_LIB paho-mqtt3c PATHS /usr/local/lib)
 target_link_libraries(cantomqtt ${PAHO_MQTT3C_LIB})
 
-#加载第三方依赖库jansson
+#lad dependency library jansson
 find_library(PAHO_JANSSON_LIB jansson PATHS /usr/local/lib)
 target_link_libraries(cantomqtt ${PAHO_JANSSON_LIB})
 

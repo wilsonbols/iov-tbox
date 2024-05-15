@@ -28,20 +28,20 @@ void readcansimulate(MQTTClient client, char *topic)
     int i;
     int ret;
 
-    /* 打开套接字 */
+    /* Open socket */
     sockfd = socket(PF_CAN, SOCK_RAW, CAN_RAW);
     if(0 > sockfd) {
         perror("socket error");
         exit(EXIT_FAILURE);
     }
 
-    /* 指定can0设备 */
+    /* Specify can0 device */
     strcpy(ifr.ifr_name, "vcan0");
     ioctl(sockfd, SIOCGIFINDEX, &ifr);
     can_addr.can_family = AF_CAN;
     can_addr.can_ifindex = ifr.ifr_ifindex;
 
-    /* 将can0与套接字进行绑定 */
+    /* Bind can0 to the socket */
     ret = bind(sockfd, (struct sockaddr *)&can_addr, sizeof(can_addr));
     if (0 > ret) {
         perror("bind error");
@@ -49,90 +49,90 @@ void readcansimulate(MQTTClient client, char *topic)
         exit(EXIT_FAILURE);
     }
 
-    /* 设置过滤规则 */
+    /* Set filter rules */
     //setsockopt(sockfd, SOL_CAN_RAW, CAN_RAW_FILTER, NULL, 0);
 
-    /* 接收数据 */
+    /* Receive data */
     for ( ; ; ) {
         if (0 > read(sockfd, &frame, sizeof(struct can_frame))) {
             perror("read error");
             break;
         }
 
-        /* 校验是否接收到错误帧 */
+        /* Check if an error frame is received */
         if (frame.can_id & CAN_ERR_FLAG) {
             printf("Error frame!\n");
             break;
         }
 
-        /* 校验帧格式 */
-        if (frame.can_id & CAN_EFF_FLAG)	//扩展帧
-            printf("扩展帧 <0x%08x> ", frame.can_id & CAN_EFF_MASK);
-        else		//标准帧
-            printf("标准帧 <0x%03x> ", frame.can_id & CAN_SFF_MASK);
+        /* Check frame format */
+        if (frame.can_id & CAN_EFF_FLAG)    //Extended frame
+            printf("Extended frame <0x%08x> ", frame.can_id & CAN_EFF_MASK);
+        else        //Standard frame
+            printf("Standard frame <0x%03x> ", frame.can_id & CAN_SFF_MASK);
 
-        /* 校验帧类型：数据帧还是远程帧 */
+        /* Check frame type: data frame or remote frame */
         if (frame.can_id & CAN_RTR_FLAG) {
             printf("remote request\n");
             continue;
         }
 
-        /* 打印数据长度 */
+        /* Print data length */
         printf("[%d] ", frame.can_dlc);
 
-        /* 打印数据 */
-        for (i = 0; i < frame.can_dlc; i++){
+        /* Print data */
+                for (i = 0; i < frame.can_dlc; i++){
             printf("%02x ", frame.data[i]);
         }
         printf("\n");
 
-        // 调用函数获取时间字符串
+        // Call function to get time string
         char *beijingTime = getBeijingTime();
 
         if (frame.can_id == 0x123) {
 
-            // 解析
+            // Parse
             int engineRPM = (frame.data[0] << 8) | frame.data[1];
             char prmstr[50];
-            // 使用 sprintf 函数将整数转换为字符串
-            sprintf(prmstr, "车辆发动机转速:%d", engineRPM);
-            // 创建 JSON 对象
+            // Use sprintf function to convert integer to string
+            sprintf(prmstr, "Vehicle engine RPM:%d", engineRPM);
+            // Create JSON object
             json_t *root = json_object();
-            // 添加键值对到 JSON 对象
+            // Add key-value pairs to JSON object
             json_object_set_new(root, "vin", json_string("NH2FX13D223ES1340"));
             json_object_set_new(root, "collisioninfo", json_string(getcollision(frame.data[2])));
             json_object_set_new(root, "locationinfo", json_string(getlocation(frame.data[3])));
             json_object_set_new(root, "descriptioninfo", json_string(prmstr));
 
-            // 将 JSON 对象转换为字符串
+            // Convert JSON object to string
             char *jsonString = json_dumps(root, JSON_ENCODE_ANY);
 
-            // 输出 JSON 字符串
+            // Output JSON string
             //printf("%s\n", jsonString);
 
             mqtt_publish(client, topic, jsonString);
-            // 释放内存
+            // Release memory
             free(jsonString);
             json_decref(root);
         }
 
-        // 判断 CAN ID 是否为 0x200
+        // Check if CAN ID is 0x200
         if (frame.can_id == 0x200) {
-            // 解析数据
+            // Parse data
             int action = frame.data[1];
-            printf("%s------从can总线获取开关门信息: %d \n",beijingTime, action);
+            printf("%s------Received switch door information from CAN bus: %d \n",beijingTime, action);
         }
         printf("\n");
-        sleep(20);   //延迟
+        sleep(20);   //Delay
 
     }
-    /* 关闭套接字 */
+    /* Close socket */
     close(sockfd);
 }
 
 
 
-// 发布消息
+// Publish message
 void mqtt_publish(MQTTClient client, char *topic, char *payload) {
     MQTTClient_message message = MQTTClient_message_initializer;
     message.payload = payload;
@@ -142,8 +142,8 @@ void mqtt_publish(MQTTClient client, char *topic, char *payload) {
     MQTTClient_deliveryToken token;
     MQTTClient_publishMessage(client, topic, &message, &token);
     MQTTClient_waitForCompletion(client, token, 10000L);
-    // 调用函数获取时间字符串
+    // Call function to get time string
     char *beijingTime = getBeijingTime();
-    // 输出
+    // Output
     printf("%s------Send \n`%s`\n to topic `%s` \n",beijingTime, payload, topic);
 }

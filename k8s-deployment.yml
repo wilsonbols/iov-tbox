@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tbox
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tbox
+  template:
+    metadata:
+      labels:
+        app: tbox
+        version: v1
+      annotations:
+        sidecar.istio.io/inject: 'true'
+    spec:
+      hostNetwork: true ## network_mode: "host"
+      containers:
+        - name: tbox
+          image: docker-server/docker-org/can_qemu:image-version
+          securityContext:
+            privileged: true
+          resources:
+            requests:
+              memory: "356Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "200m"
+      imagePullSecrets:
+        - name: hwbj
+      restartPolicy: Always

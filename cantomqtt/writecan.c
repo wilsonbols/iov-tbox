@@ -1,5 +1,3 @@
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,15 +7,12 @@
 #include <linux/can.h>
 #include <linux/can/raw.h>
 #include <net/if.h>
-#include "control.h"  // 包含转换函数的头文件
+#include "control.h"  // Include the header file of the conversion function
 
-
-
-// 生成随机转速值（范围：1000 到 7000 RPM）
+// Generate a random RPM value (range: 1000 to 7000 RPM)
 int generateRandomRPM() {
     return rand() % (7000 - 1000 + 1) + 1000;
 }
-
 
 int main(void)
 {
@@ -27,20 +22,20 @@ int main(void)
     int sockfd = -1;
     int ret;
 
-    /* 打开套接字 */
+    /* Open socket */
     sockfd = socket(PF_CAN, SOCK_RAW, CAN_RAW);
     if(0 > sockfd) {
         perror("socket error");
         exit(EXIT_FAILURE);
     }
 
-    /* 指定can0设备 */
+    /* Specify can0 device */
     strcpy(ifr.ifr_name, "vcan0");
     ioctl(sockfd, SIOCGIFINDEX, &ifr);
     can_addr.can_family = AF_CAN;
     can_addr.can_ifindex = ifr.ifr_ifindex;
 
-    /* 将can0与套接字进行绑定 */
+    /* Bind can0 to the socket */
     ret = bind(sockfd, (struct sockaddr *)&can_addr, sizeof(can_addr));
     if (0 > ret) {
         perror("bind error");
@@ -48,43 +43,39 @@ int main(void)
         exit(EXIT_FAILURE);
     }
 
-    /* 设置过滤规则：不接受任何报文、仅发送数据 */
+    /* Set filter rules: do not accept any message, only send data */
     setsockopt(sockfd, SOL_CAN_RAW, CAN_RAW_FILTER, NULL, 0);
-
 
     for ( ; ; ) {
 
-        // 模拟随机转速
+        // Simulate random RPM
         int engineRPM = generateRandomRPM();
-        /* 发送数据 */
-        //frame.data[0] = 0x0B;   //一个字节的范围是 0 到 255
-        //frame.data[1] = 0xB8;
-        frame.data[0] = (engineRPM >> 8) & 0xFF;  // 发动机转数的高字节
-        frame.data[1] = engineRPM & 0xFF;         // 发动机转数的低字节
+        /* Send data */
+        frame.data[0] = (engineRPM >> 8) & 0xFF;  // High byte of engine RPM
+        frame.data[1] = engineRPM & 0xFF;         // Low byte of engine RPM
         frame.data[2] = getRand2();
         frame.data[3] = getRand99();
         frame.data[4] = 0xE0;
         frame.data[5] = 0xF0;
-        frame.can_dlc = 6;	//一次发送6个字节数据
-        frame.can_id = 0x123;//帧ID为 0x123,标准帧
+        frame.can_dlc = 6;    // Send 6 bytes of data
+        frame.can_id = 0x123; // Frame ID is 0x123, standard frame
 
-
-        ret = write(sockfd, &frame, sizeof(frame)); //发送数据
-        if(sizeof(frame) != ret) { //如果ret不等于帧长度，就说明发送失败
+        ret = write(sockfd, &frame, sizeof(frame)); // Send data
+        if(sizeof(frame) != ret) { // If ret is not equal to the frame length, it means the sending failed
             perror("write error");
             goto out;
         }
 
-        // 调用函数获取时间字符串
+        // Call the function to get the time string        
         char *beijingTime = getBeijingTime();
-        // 输出时间字符串
-        printf("%s ------发送数据data[0] `%d` data[1] `%d` data[2] `%d` data[3] `%d`\n", beijingTime,frame.data[0],frame.data[1],frame.data[2],frame.data[3]);
-        // printf(" 发送数据\n");
-        sleep(20);		//一秒钟发送一次
+        // Output the time string
+        printf("%s ------Sending data: data[0] `%d` data[1] `%d` data[2] `%d` data[3] `%d`\n", beijingTime, frame.data[0], frame.data[1], frame.data[2], frame.data[3]);
+        // printf("Sending data\n");
+        sleep(20);     // Send once per second
     }
 
     out:
-    /* 关闭套接字 */
+    /* Close socket */
     close(sockfd);
     exit(EXIT_SUCCESS);
 }

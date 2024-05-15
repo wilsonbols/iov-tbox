@@ -11,7 +11,7 @@
 #include <net/if.h>
 #include <jansson.h>
 
-// 函数声明
+// Function declarations
 char* getEnvVariable(char* envVarName);
 char* decimalToHexadecimal(int decimalValue);
 char* getBeijingTime();
@@ -22,11 +22,11 @@ char* getlocation(int index);
 int getRand2();
 int getRand99();
 
-// 函数定义
+// Function definitions
 char* getEnvVariable(char* envVarName) {
-    // 使用 getenv 获取环境变量的值
-     char *envVarValue = getenv(envVarName);
-    // 检查环境变量是否存在
+    // Use getenv to get the value of the environment variable
+    char *envVarValue = getenv(envVarName);
+    // Check if the environment variable exists
     if (envVarValue != NULL) {
         printf("Env Value of %s: %s\n", envVarName, envVarValue);
     } else {
@@ -35,39 +35,37 @@ char* getEnvVariable(char* envVarName) {
     return envVarValue;
 }
 
-
-// 函数定义
 char* decimalToHexadecimal(int decimalValue) {
-    // 计算所需的字符串长度
+    // Calculate the required string length
     int len = snprintf(NULL, 0, "%X", decimalValue);
 
-    // 分配足够的内存来存储十六进制字符串
+    // Allocate enough memory to store the hexadecimal string
     char* hexString = (char*)malloc(len + 1);
 
-    // 将十进制数转换为十六进制字符串
+    // Convert the decimal number to a hexadecimal string
     snprintf(hexString, len + 1, "%X", decimalValue);
 
     return hexString;
 }
 
 char* getBeijingTime() {
-    // 获取当前时间
+    // Get the current time
     time_t currentTime;
     struct tm *localTime;
     time(&currentTime);
 
-    // 将时间调整为北京时区
+    // Adjust the time to Beijing timezone
     localTime = gmtime(&currentTime);
     localTime->tm_hour += 8;
 
-    // 分配足够的内存来存储日期和时间字符串
-    char *dateTimeString = (char *)malloc(20); // yyyy/MM/dd HH:MM:SS\0 共 20 个字符
+    // Allocate enough memory to store the date and time string
+    char *dateTimeString = (char *)malloc(20); // yyyy/MM/dd HH:MM:SS\0 total 20 characters
     if (dateTimeString == NULL) {
         perror("Memory allocation failed");
         exit(EXIT_FAILURE);
     }
 
-    // 格式化日期和时间字符串
+    // Format the date and time string
     snprintf(dateTimeString, 20, "%04d/%02d/%02d %02d:%02d:%02d",
              localTime->tm_year + 1900, localTime->tm_mon + 1, localTime->tm_mday,
              localTime->tm_hour, localTime->tm_min, localTime->tm_sec);
@@ -75,7 +73,7 @@ char* getBeijingTime() {
     return dateTimeString;
 }
 
-// 写入数据到can总线
+// Write data to the CAN bus
 char* cansend_cardoor(char* json_string) {
 
     /* 添加车门控制逻辑 */
@@ -85,20 +83,20 @@ char* cansend_cardoor(char* json_string) {
     int sockfd = -1;
     int ret;
 
-    /* 打开套接字 */
+    /* Open the socket */
     sockfd = socket(PF_CAN, SOCK_RAW, CAN_RAW);
     if(0 > sockfd) {
         perror("socket error");
         exit(EXIT_FAILURE);
     }
 
-    /* 指定can0设备 */
+    /* Specify the can0 device */
     strcpy(ifr.ifr_name, "can0");
     ioctl(sockfd, SIOCGIFINDEX, &ifr);
     can_addr.can_family = AF_CAN;
     can_addr.can_ifindex = ifr.ifr_ifindex;
 
-    /* 将can0与套接字进行绑定 */
+    /* Bind can0 to the socket */
     ret = bind(sockfd, (struct sockaddr *)&can_addr, sizeof(can_addr));
     if (0 > ret) {
         perror("bind error");
@@ -106,11 +104,10 @@ char* cansend_cardoor(char* json_string) {
         exit(EXIT_FAILURE);
     }
 
-    /* 设置过滤规则：不接受任何报文、仅发送数据 */
+    /* Set the filter rules: do not accept any messages, only send data */
     setsockopt(sockfd, SOL_CAN_RAW, CAN_RAW_FILTER, NULL, 0);
 
-
-    // -------------------------------解析json字符串
+    // -------------------------------Parse the JSON string
     json_error_t error;
     json_t *root = json_loads(json_string, 0, &error);
 
@@ -129,21 +126,21 @@ char* cansend_cardoor(char* json_string) {
             frame.data[1] = 0x0;
         }
 
-            frame.data[2] = 0x0;
-            frame.data[3] = 0x0;
-            frame.can_dlc = 4;	//一次发送6个字节数据
-            frame.can_id = 0x200;//帧ID为 0x200,标准帧
+        frame.data[2] = 0x0;
+        frame.data[3] = 0x0;
+        frame.can_dlc = 4;	// Send 6 bytes of data at a time
+        frame.can_id = 0x200; // Frame ID is 0x200, standard frame
 
-            ret = write(sockfd, &frame, sizeof(frame)); //发送数据
-            if(sizeof(frame) != ret) { //如果ret不等于帧长度，就说明发送失败
-                perror("write error");
-                goto out;
-            }
+        ret = write(sockfd, &frame, sizeof(frame)); // Send data
+        if(sizeof(frame) != ret) { // If ret is not equal to the frame length, it means the sending failed
+            perror("write error");
+            goto out;
+        }
 
-            // 调用函数获取时间字符串
-            char *beijingTime = getBeijingTime();
-            // 输出时间字符串
-            printf("%s ------获取远程数据发送到can总线:data[0] `%d` data[1] `%d`\n\n", beijingTime,frame.data[0],frame.data[1]);
+        // Call the function to get the time string
+        char *beijingTime = getBeijingTime();
+        // Output the time string
+        printf("%s ------Get remote data sent to the CAN bus: data[0] `%d` data[1] `%d`\n\n", beijingTime, frame.data[0], frame.data[1]);
 
         json_decref(root);
     } else {
@@ -151,12 +148,12 @@ char* cansend_cardoor(char* json_string) {
     }
 
     out:
-    /* 关闭套接字 */
+    /* Close the socket */
     close(sockfd);
     //exit(EXIT_SUCCESS);
 }
 
-// 解析
+// Parse
 int gettemperature(char* json_string) {
     //const char *json_string = "{\"canid\": \"0x200\",\"temperature\": \"25\"}";
 
@@ -166,21 +163,21 @@ int gettemperature(char* json_string) {
     if (root) {
         const char *canid = json_string_value(json_object_get(root, "canid"));
 
-            // 获取 "temperature" 字段的值
-            json_t *temperature_json = json_object_get(root, "temperature");
+        // Get the value of the "temperature" field
+        json_t *temperature_json = json_object_get(root, "temperature");
 
-            // 检查 "temperature" 字段的值类型是否是字符串
-            if (json_is_string(temperature_json)) {
-                // 将字符串转换为整数
-                int temperature = atoi(json_string_value(temperature_json));
+        // Check if the value of the "temperature" field is a string
+        if (json_is_string(temperature_json)) {
+            // Convert the string to an integer
+            int temperature = atoi(json_string_value(temperature_json));
 
-                printf("canid: %s\n", canid);
-                printf("temperature: %d\n", temperature);
-                return temperature;
+            printf("canid: %s\n", canid);
+            printf("temperature: %d\n", temperature);
+            return temperature;
 
-            } else {
-                fprintf(stderr, "\"temperature\" field is not a string.\n");
-            }
+        } else {
+            fprintf(stderr, "\"temperature\" field is not a string.\n");
+        }
 
         json_decref(root);
     } else {
@@ -191,124 +188,140 @@ int gettemperature(char* json_string) {
 
 //
 char* getcollision(int index) {
-    // 三个可能的事件
-     char* events[] = {"气囊弹出", "车辆侧翻", "车辆涉水"};
+    // Three possible events
+    char* events[] = {"Airbag deployed", "Vehicle rollover", "Vehicle water immersion"};
     return events[index];
 }
 
 //
 char* getlocation(int index) {
 
-     char* events[] = {"北京市市辖区丰台区东铁匠营街道",
-                            "贵州省六盘水市六枝特区梭戛苗族彝族回族乡",
-                            "山西省晋城市陵川县马圪当乡",
-                            "浙江省湖州市吴兴区仁皇山街道",
-                            "海南省海口市秀英区海秀街道办",
-                            "安徽省黄山市屯溪区屯光镇",
-                            "湖南省郴州市北湖区月峰瑶族乡",
-                            "上海市市辖区金山区吕巷镇",
-                            "山西省晋中市左权县麻田镇",
-                            "上海市市辖区徐汇区田林街道",
-                            "湖南省株洲市茶陵县界首镇",
-                            "四川省内江市威远县向义镇",
-                            "黑龙江省黑河市北安市海星镇",
-                            "浙江省衢州市江山市长台镇",
-                            "广西壮族自治区贺州市八步区桂岭镇",
-                            "黑龙江省大庆市林甸县林甸县长青林场",
-                            "北京市市辖区朝阳区双井街道",
-                            "上海市市辖区嘉定区新成路街道",
-                            "四川省甘孜藏族自治州得荣县徐龙乡",
-                            "安徽省淮北市烈山区烈山区工业园",
-                            "河南省鹤壁市鹤山区中北街道",
-                            "河南省安阳市汤阴县任固镇",
-                            "河南省开封市杞县葛岗镇",
-                            "黑龙江省哈尔滨市道里区经纬街道",
-                            "江苏省淮安市淮安区林集镇",
-                            "黑龙江省大兴安岭地区塔河县十八站林业局",
-                            "山东省聊城市冠县斜店乡",
-                            "湖南省长沙市开福区湘雅路街道",
-                            "吉林省白城市洮北区三合乡",
-                            "黑龙江省鹤岗市工农区团结街道",
-                            "贵州省黔西南布依族苗族自治州兴仁县鲁础营乡",
-                            "浙江省台州市天台县南屏乡",
-                            "天津市市辖区东丽区军粮城街道",
-                            "江西省九江市武宁县万福经济技术开发区管委会",
-                            "黑龙江省双鸭山市尖山区富安街道",
-                            "重庆市市辖区北碚区柳荫镇",
-                            "浙江省金华市武义县王宅镇",
-                            "宁夏回族自治区银川市永宁县望洪镇",
-                            "辽宁省葫芦岛市南票区邱皮沟街道",
-                            "山东省威海市环翠区竹岛街道",
-                            "内蒙古自治区阿拉善盟阿拉善左旗温都尔勒图镇",
-                            "河南省新乡市牧野区和平路街道",
-                            "黑龙江省大兴安岭地区呼玛县鸥浦乡",
-                            "河北省邢台市柏乡县王家庄乡",
-                            "宁夏回族自治区吴忠市同心县王团镇",
-                            "黑龙江省伊春市伊春区东升街道",
-                            "吉林省通化市辉南县辉发城镇",
-                            "青海省黄南藏族自治州泽库县宁秀乡",
-                            "山东省青岛市市南区珠海路街道",
-                            "陕西省安康市石泉县云雾山镇",
-                            "重庆市市辖区江北区复盛镇人民政府",
-                            "湖北省武汉市江夏区郑店街道",
-                            "青海省果洛藏族自治州玛多县扎陵湖乡",
-                            "四川省成都市青羊区黄田坝街道",
-                            "北京市市辖区石景山区广宁街道",
-                            "内蒙古自治区呼伦贝尔市根河市阿龙山镇",
-                            "吉林省白山市抚松县兴参镇",
-                            "安徽省安庆市潜山县源潭镇",
-                            "湖北省孝感市云梦县道桥镇",
-                            "西藏自治区阿里地区札达县底雅乡",
-                            "辽宁省锦州市北镇市闾阳镇",
-                            "吉林省松原市乾安县大遐畜牧场",
-                            "宁夏回族自治区中卫市中宁县喊叫水乡",
-                            "陕西省安康市石泉县迎丰镇",
-                            "黑龙江省牡丹江市东安区七星街道",
-                            "辽宁省锦州市黑山县常兴镇",
-                            "广东省江门市江海区礼乐街道",
-                            "四川省泸州市古蔺县桂花乡",
-                            "河南省许昌市鄢陵县南坞乡",
-                            "贵州省黔西南布依族苗族自治州普安县窝沿乡",
-                            "广东省茂名市茂南区山阁镇",
-                            "河南省许昌市魏都区七里店街道",
-                            "上海市市辖区浦东新区东海农场",
-                            "云南省曲靖市陆良县中枢镇",
-                            "福建省福州市罗源县霍口畲族乡",
-                            "浙江省嘉兴市海盐县秦山街道",
-                            "四川省达州市大竹县张家乡",
-                            "甘肃省陇南市礼县石桥镇",
-                            "河北省廊坊市固安县固安镇",
-                            "江苏省泰州市高港区泰州市高港区科技创业园管理委员会",
-                            "福建省泉州市惠安县惠南工业区",
-                            "四川省德阳市旌阳区城北街道",
-                            "黑龙江省牡丹江市穆棱市八面通镇",
-                            "宁夏回族自治区中卫市中宁县白马乡",
-                            "海南省省直辖县级行政区划万宁市长丰镇",
-                            "贵州省贵阳市乌当区逸景社区服务中心",
-                            "贵州省铜仁市印江土家族苗族自治县新寨乡",
-                            "青海省玉树藏族自治州治多县治渠乡",
-                            "山东省潍坊市安丘市金冢子镇",
-                            "黑龙江省大兴安岭地区呼玛县北疆乡",
-                            "吉林省吉林市舒兰市法特镇",
-                            "湖北省荆门市京山县罗店镇",
-                            "重庆市县彭水苗族土家族自治县万足镇",
-                            "青海省西宁市湟源县巴燕乡",
-                            "河南省省直辖县级行政区划济源市济源市轵城镇",
-                            "陕西省宝鸡市麟游县常丰镇",
-                            "广西壮族自治区北海市合浦县乌家镇",
-                            "湖北省恩施土家族苗族自治州利川市都亭街道",
-                            "四川省达州市渠县东安乡",
-                            "山东省菏泽市成武县成武县九女集镇"};
-
+     char* events[] = {"Fengtai District, Beijing City",
+                            "Suojia Miao, Yi and Hui Ethnic Township, Liuzhi Special District, Liupanshui City, Guizhou Province",
+                            "Magangdang Township, Lingchuan County, Jincheng City, Shanxi Province",
+                            "Renhuangshan Subdistrict, Wuxing District, Huzhou City, Zhejiang Province",
+                            "Haixiu Subdistrict Office, Xiuying District, Haikou City, Hainan Province",
+                            "Tunguang Town, Tunxi District, Huangshan City, Anhui Province",
+                            "Yuefeng Yao Ethnic Township, Beihu District, Chenzhou City, Hunan Province",
+                            "Luxiang Town, Jinshan District, Shanghai City",
+                            "Matian Town, Zuoquan County, Jinzhong City, Shanxi Province",
+                            "Tianlin Subdistrict, Xuhui District, Shanghai City",
+                            "Jieshou Town, Chaling County, Zhuzhou City, Hunan Province",
+                            "Xiangyi Town, Weiyuan County, Neijiang City, Sichuan Province",
+                            "Haixing Town, Bei'an City, Heihe City, Heilongjiang Province",
+                            "Changtai Town, Jiangshan City, Quzhou City, Zhejiang Province",
+                            "Guiling Town, Babu District, Hezhou City, Guangxi Zhuang Autonomous Region",
+                            "Changqing Forestry Farm, Lindian County, Daqing City, Heilongjiang Province",
+                            "Shuangjing Subdistrict, Chaoyang District, Beijing City",
+                            "Xincheng Road Subdistrict, Jiading District, Shanghai City",
+                            "Xulong Township, Derong County, Garze Tibetan Autonomous Prefecture, Sichuan Province",
+                            "Industrial Park, Lishan District, Huaibei City, Anhui Province",
+                            "Zhongbei Subdistrict, Heshan District, Hebi City, Henan Province",
+                            "Rengu Town, Tangyin County, Anyang City, Henan Province",
+                            "Gegang Town, Qi County, Kaifeng City, Henan Province",
+                            "Jingwei Subdistrict, Daoli District, Harbin City, Heilongjiang Province",
+                            "Linji Town, Huai'an District, Huai'an City, Jiangsu Province",
+                            "Eighteen Station Forestry Bureau, Tahe County, Daxing'anling Prefecture, Heilongjiang Province",
+                            "Xiedian Township, Guan County, Liaocheng City, Shandong Province",
+                            "Xiangya Road Subdistrict, Kaifu District, Changsha City, Hunan Province",
+                            "Sanhe Township, Taobei District, Baicheng City, Jilin Province",
+                            "Tuanjie Subdistrict, Gongnong District, Hegang City, Heilongjiang Province",
+                            "Luchu Camp Township, Xingren County, Qianxinan Buyi and Miao Autonomous Prefecture, Guizhou Province",
+                            "Nanping Township, Tiantai County, Taizhou City, Zhejiang Province",
+                            "Junliangcheng Subdistrict, Dongli District, Tianjin City",
+                            "Wanfu Economic and Technological Development Zone Management Committee, Wuning County, Jiujiang City, Jiangxi Province",
+                            "Fu'an Subdistrict, Jianshan District, Shuangyashan City, Heilongjiang Province",
+                            "Liuyin Town, Beibei District, Chongqing City",
+                            "Wangzai Town, Wuyi County, Jinhua City, Zhejiang Province",
+                            "Wanghong Town, Yongning County, Yinchuan City, Ningxia Hui Autonomous Region",
+                            "Qiupigou Subdistrict, Nanpiao District, Huludao City, Liaoning Province",
+                            "Zhudao Subdistrict, Huancui District, Weihai City, Shandong Province",
+                            "Wendouerletu Town, Alxa Left Banner, Alxa League, Inner Mongolia Autonomous Region",
+                            "Peace Road Subdistrict, Muye District, Xinxiang City, Henan Province",
+                            "Oupu Township, Huma County, Daxing'anling Prefecture, Heilongjiang Province",
+                            "Wangjiazhuang Township, Baixiang County, Xingtai City, Hebei Province",
+                            "Wangtuan Town, Tongxin County, Wuzhong City, Ningxia Hui Autonomous Region",
+                            "Dongsheng Subdistrict, Yichun District, Yichun City, Heilongjiang Province",
+                            "Huifacheng Town, Huinan County, Tonghua City, Jilin Province",
+                            "Ningxiu Township, Zeku County, Huangnan Tibetan Autonomous Prefecture, Qinghai Province",
+                            "Zhuhai Road Subdistrict, Shinan District, Qingdao City, Shandong Province",
+                            "Yunwu Mountain Town, Shiquan County, Ankang City, Shaanxi Province",
+                            "Fusheng Town People's Government, Jiangbei District, Chongqing City",
+                            "Zhengdian Subdistrict, Jiangxia District, Wuhan City, Hubei Province",
+                            "Zhalin Lake Township, Maduo County, Guoluo Tibetan Autonomous Prefecture, Qinghai Province",
+                            "Huangtianba Subdistrict, Qingyang District, Chengdu City, Sichuan Province",
+                            "Guangning Subdistrict, Shijingshan District, Beijing City",
+                            "Alongshan Town, Genhe City, Hulunbuir City, Inner Mongolia Autonomous Region",
+                            "Xingcan Town, Fushun County, Baishan City, Jilin Province",
+                            "Yuantan Town, Qianshan County, Anqing City, Anhui Province",
+                            "Daoqiao Town, Yunmeng County, Xiaogan City, Hubei Province",
+                            "Diyaxiang Township, Zada County, Ali Region, Tibet Autonomous Region",
+                            "Luyang Town, Beizhen City, Jinzhou City, Liaoning Province",
+                            "Daxia Livestock Farm, Qian'an County, Songyuan City, Jilin Province",
+                            "Hanjiashui Township, Zhongning County, Zhongwei City, Ningxia Hui Autonomous Region",
+                            "Yingfeng Town, Shiquan County, Ankang City, Shaanxi Province",
+                            "Qixing Subdistrict, Dong'an District, Mudanjiang City, Heilongjiang Province",
+                            "Changxing Town, Heishan County, Jinzhou City, Liaoning Province",
+                            "Liyue Subdistrict, Jianghai District, Jiangmen City, Guangdong Province",
+                            "Guihua Township, Gulin County, Luzhou City, Sichuan Province",
+                            "Nanwu Township, Yanling County, Xuchang City, Henan Province",
+                            "Woyan Township, Puan County, Qianxinan Buyi and Miao Autonomous Prefecture, Guizhou Province",
+                            "Shange Town, Maonan District, Maoming City, Guangdong Province",
+                            "Qilidian Subdistrict, Weidu District, Xuchang City, Henan Province",
+                            "Donghai Farm, Pudong New Area, Shanghai City",
+                            "Zhushu Town, Luliang County, Qujing City, Yunnan Province",
+                            "Huokou She Ethnic Township, Luoyuan County, Fuzhou City, Fujian Province",
+                            "Qinshan Subdistrict, Haiyan County, Jiaxing City, Zhejiang Province",
+                            "Zhangjia Township, Dazhu County, Dazhou City, Sichuan Province",
+                            "Shiqiao Town, Li County, Longnan City, Gansu Province",
+                            "Gu'an Town, Gu'an County, Langfang City, Hebei Province",
+                            "Science and Technology Entrepreneurship Park Management Committee, Gaogang District, Taizhou City, Jiangsu Province",
+                            "Huinan Industrial Zone, Huian County, Quanzhou City, Fujian Province",
+                            "Chengbei Subdistrict, Jingyang District, Deyang City, Sichuan Province",
+                            "Bamiantong Town, Muling City, Mudanjiang City, Heilongjiang Province",
+                            "Baima Township, Zhongning County, Zhongwei City, Ningxia Hui Autonomous Region",
+                            "Changfeng Town, Wanning City, Hainan Province",
+                            "Yijing Community Service Center, Wudang District, Guiyang City, Guizhou Province",
+                            "Xinzhai Township, Yinjiang Tujia and Miao Autonomous County, Tongren City, Guizhou Province",
+                            "Zhiqu Township, Zhiduo County, Yushu Tibetan Autonomous Prefecture, Qinghai Province",
+                            "Jindizai Town, Anqiu City, Weifang City, Shandong Province",
+                            "Beijiang Township, Huma County, Daxing'anling Prefecture, Heilongjiang Province",
+                            "Fate Town, Shulan City, Jilin City, Jilin Province",
+                            "Luodian Town, Jingshan County, Jingmen City, Hube Province",
+                            "Wanbu Town, Pengshui Miao and Tujia Autonomous County, Chongqing City",
+                            "Baiyan Township, Huangyuan County, Xining City, Qinghai Province",
+                            "Zucheng Town, Jiyuan City, Henan Province",
+                            "Yingfeng Town, Shiquan County, Ankang City, Shaanxi Province",
+                            "Wujia Town, Hepu County, Beihai City, Guangxi Zhuang Autonomous Region",
+                            "Renwang Subdistrict, Enshi Tujia and Miao Autonomous Prefecture, Hubei Province",
+                            "Dongan Township, Qu County, Dazhou City, Sichuan Province",
+                            "Wangjiazhuang Township, Baixiang County, Xingtai City, Hebei Province",
+                            "Baima Township, Zhongning County, Zhongwei City, Ningxia Hui Autonomous Region",
+                            "Changfeng Town, Wanning City, Hainan Province",
+                            "Yijing Community Service Center, Wudang District, Guiyang City, Guizhou Province",
+                            "Xinzhai Township, Yinjiang Tujia and Miao Autonomous County, Tongren City, Guizhou Province",
+                            "Zhiqu Township, Zhiduo County, Yushu Tibetan Autonomous Prefecture, Qinghai Province",
+                            "Jindizai Town, Anqiu City, Weifang City, Shandong Province",
+                            "Beijiang Township, Huma County, Daxing'anling Prefecture, Heilongjiang Province",
+                            "Fate Town, Shulan City, Jilin City, Jilin Province",
+                            "Luodian Town, Jingshan County, Jingmen City, Hubei Province",
+                            "Wanbu Town, Pengshui Miao and Tujia Autonomous County, Chongqing City",
+                            "Baiyan Township, Huangyuan County, Xining City, Qinghai Province",
+                            "Zucheng Town, Jiyuan City, Henan Province",
+                            "Yingfeng Town, Shiquan County, Ankang City, Shaanxi Province",
+                            "Wujia Town, Hepu County, Beihai City, Guangxi Zhuang Autonomous Region",
+                            "Renwang Subdistrict, Enshi Tujia and Miao Autonomous Prefecture, Hubei Province",
+                            "Dongan Township, Qu County, Dazhou City, Sichuan Province"};
 
     return events[index];
 }
+
 
 //
 int getRand2() {
     srand(time(NULL));
     int randomValue = rand();
-    // 将随机数映射到0、1、2范围
+    // Map the random number to the range 0, 1, 2
     int result = randomValue % 3;
     return result;
 }
@@ -318,9 +331,9 @@ int getRand99() {
     srand(time(NULL));
     int min=0;
     int max=99;
-    // 生成随机数（0到RAND_MAX之间）
+    // Generate a random number (0 to RAND_MAX)
     int randomValue = rand();
-    // 计算范围内的随机数
+    // Calculate a random number within the range
     int result = min + randomValue % (max - min + 1);
     return result;
 }

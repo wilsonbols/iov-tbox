@@ -5,7 +5,7 @@
 can_send="./can_send"
 tbox="./tbox"
 
-# 检查文件是否存在
+# check file exist
 if [ -e "$can_send" ]; then
     rm -f "$can_send"
     echo "can_send deleted."

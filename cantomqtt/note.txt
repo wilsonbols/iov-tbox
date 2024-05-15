@@ -1,0 +1,53 @@
+
+
+Install JSON parsing dependency library
+sudo apt-get install libjansson-dev
+
+Alternatively, download from:
+https://github.com/akheron/jansson/releases/download/v2.14/jansson-2.14.tar.gz
+https://github.com/akheron/jansson
+
+Execute installation:
+./configure
+make
+make install
+
+
+
+
+
+
+Compile binary: 
+gcc writecan.c common/conversion.c -o can_write -ljansson
+
+Dynamic linking with -lpaho-mqtt3c library: 
+gcc main.c common/conversion.c -o can_mqtt -lpaho-mqtt3c -ljansson
+
+
+Check compilation architecture: 
+readelf -h can_mqtt
+
+View CAN messages: 
+candump vcan0
+
+
+
+
+
+
+Send temperature JSON from MQTT server:
+{"canid": "0x200","temperature": "25"}
+
+
+NH2FX13D223ES1340
+
+
+String vin = collisionData.getString("vin");
+				String locationinfo = collisionData.getString("locationinfo");
+				String collisioninfo = collisionData.getString("collisioninfo");
+				String descriptioninfo = collisionData.getString("descriptioninfo");
+
+Change the frequency of sending alert information to once every 20 seconds. collisioninfo: includes airbag deployment, vehicle rollover, vehicle water immersion. Randomly select one of these each time it is sent, and the location information remains a fixed string.
+
+{"vin": "0x200","locationinfo": "北京市区","collisioninfo": "气囊弹出","descriptioninfo": "车辆熄火"}
+{"vin": "0x200","locationinfo": "Beijing City","collisioninfo": "Airbag Deployment","descriptioninfo": "Vehicle Engine Off"}

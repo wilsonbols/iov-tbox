@@ -3,7 +3,7 @@
 #ifndef CONTROL_H
 #define CONTROL_H
 
-// 函数声明
+// Function declarations
 char* getEnvVariable(char* envVarName);
 
 char* decimalToHexadecimal(int decimalValue);
