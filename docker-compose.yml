@@ -8,3 +8,5 @@ services:
     container_name: tbox
     privileged: true
     network_mode: "host"
+    environment:
+      - debug_env_flag=1
