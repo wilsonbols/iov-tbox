@@ -76,7 +76,8 @@ char* getBeijingTime() {
 // Write data to the CAN bus
 char* cansend_cardoor(char* json_string) {
     
-    
+    perror("cansend_cardoor Not Implementation !");
+    fprintf(stderr, "Recive JSON : %s\n", json_string);
     
 }
 
