@@ -1,5 +1,5 @@
 #!/bin/bash
-
+pwd
 apt-get update
 
 apt-get -y install libpaho-mqtt-dev
@@ -9,7 +9,6 @@ apt-get -y install lcov
 
 echo "----------install deps end ----------"
 
-cd /home/project/c-cpp-unittest-coverage-demo
 # docker run --name cpp_build -d --rm -p 9422:22 -v C:\Users\limin\.ssh:/home/smartide/.ssh -v E:\work\project\hw-codearts\stage3-tbox\c-cpp-unittest-coverage-demo:/home/project/c-cpp-unittest-coverage-demo registry.cn-hangzhou.aliyuncs.com/smartide/smartide-cpp-v2:latest
 # docker exec cpp_build /bin/bash -c "/home/project/c-cpp-unittest-coverage-demo/build_gtest.sh"
 
@@ -42,6 +41,3 @@ genhtml coverage.info --output-directory out  # 生成HTML报告
 tar -zcvf ../arts_out/coverage_result_html_report.tar.gz out  # 压缩报告
 
 echo "----------all done ----------"
-
-# exit container
-kill 1 
