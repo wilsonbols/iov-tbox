@@ -11,3 +11,4 @@ dist-ssr
 cmake-build-debug
 manual-build
 can_*
+build/*
