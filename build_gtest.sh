@@ -1,5 +1,6 @@
 #!/bin/bash
 pwd
+ls
 apt-get update
 
 apt-get -y install libpaho-mqtt-dev
@@ -17,7 +18,8 @@ echo "----------install deps end ----------"
 
 # 用这个编译/执行测试.
 # docker run --name tbox_build --entrypoint /bin/bash --rm -v E:\work\project\hw-codearts\stage3-tbox\IoV-TBox:/root/tbox swr.cn-north-4.myhuaweicloud.com/iov-workshop/tbox-compiler:v4 -c "/root/tbox/build_gtest.sh"
-
+cd /root/tbox
+ls
 
 chmod -R 777 build
 chmod -R 777 arts_out
