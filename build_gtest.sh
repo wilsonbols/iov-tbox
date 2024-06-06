@@ -3,6 +3,7 @@ pwd
 ls
 apt-get update
 
+#apt-get -y install wget
 apt-get -y install libpaho-mqtt-dev
 apt-get -y install libjansson-dev
 apt-get -y install libgtest-dev
@@ -18,6 +19,8 @@ echo "----------install deps end ----------"
 
 # 用这个编译/执行测试.
 # docker run --name tbox_build --entrypoint /bin/bash --rm -v E:\work\project\hw-codearts\stage3-tbox\IoV-TBox:/root/tbox swr.cn-north-4.myhuaweicloud.com/iov-workshop/tbox-compiler:v4 -c "/root/tbox/build_gtest.sh"
+
+# docker run --name tbox_build --entrypoint /bin/bash --rm -it -v E:\work\project\hw-codearts\stage3-tbox\IoV-TBox:/root/tbox swr.cn-north-4.myhuaweicloud.com/iov-workshop/tbox-compiler:v4
 cd /root/tbox
 ls
 
@@ -43,3 +46,7 @@ genhtml coverage.info --output-directory out  # 生成HTML报告
 tar -zcvf ../arts_out/coverage_result_html_report.tar.gz out  # 压缩报告
 
 echo "----------all done ----------"
+
+# mkdir ../mockcpp_source && cd ../mockcpp_source
+# tar -xvzf mockcpp-2.6.tar.gz && cd mockcpp
+
