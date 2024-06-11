@@ -1,13 +1,18 @@
 #!/bin/bash
 pwd
 ls
-apt-get update
+apt-get update && apt upgrade
 
-#apt-get -y install wget
+apt-get -y install wget
 apt-get -y install libpaho-mqtt-dev
 apt-get -y install libjansson-dev
 apt-get -y install libgtest-dev
 apt-get -y install lcov
+
+apt install ca-certificates apt-transport-https software-properties-common lsb-release libboost-dev git -y
+
+apt install python3.11 -y
+python3.11 --version
 
 echo "----------install deps end ----------"
 
@@ -21,12 +26,44 @@ echo "----------install deps end ----------"
 # docker run --name tbox_build --entrypoint /bin/bash --rm -v E:\work\project\hw-codearts\stage3-tbox\IoV-TBox:/root/tbox swr.cn-north-4.myhuaweicloud.com/iov-workshop/tbox-compiler:v4 -c "/root/tbox/build_gtest.sh"
 
 # docker run --name tbox_build --entrypoint /bin/bash --rm -it -v E:\work\project\hw-codearts\stage3-tbox\IoV-TBox:/root/tbox swr.cn-north-4.myhuaweicloud.com/iov-workshop/tbox-compiler:v4
+
+
+echo "----------start build and intstall mockcpp ----------"
+
+git clone https://github.com/sinojelly/mockcpp.git ../mockcpp
+
+
+cd ../mockcpp
+
+sed -i 's/XUNIT_NAME=testngpp/XUNIT_NAME=gtest/g' build_install.sh
+# sed -i 's/XUNIT_NAME=testngpp/XUNIT_NAME=gtest/g' build_install.sh
+
+echo "----------cat mockcpp build_install.sh content  ----------"
+cat build_install.sh
+echo "----------cat mockcpp build_install.sh content End. will build mockcpp ----------"
+
+XUNIT_HOME=/usr/src/gtest ./build_install.sh # gtest intall to this dir
+ls -ll ../
+
+echo "----------start build tbox ----------"
+cd ../test_tools/mockcpp_install
+cp lib/libmockcpp.a /usr/lib
+cp -rf ./include/mockcpp /usr/include/mockcpp
+cp -rf ./include/fake_boost /usr/include/fake_boost
+cp -rf ./include/msinttypes /usr/include/msinttypes
+
+
+## cd /root/workspace/IoV-TBox
+
+echo "----------start build tbox ----------"
+
 cd /root/tbox
+
 ls
 
 chmod -R 777 build
 chmod -R 777 arts_out
-rm -rf build/*
+rm -rf build/* 
 
 cd build 
 cmake -DCODE_COVERAGE=ON .. 
@@ -49,4 +86,30 @@ echo "----------all done ----------"
 
 # mkdir ../mockcpp_source && cd ../mockcpp_source
 # tar -xvzf mockcpp-2.6.tar.gz && cd mockcpp
+
+
+# #docker run --name mock --entrypoint /bin/bash -it -v E:\work\project\hw-codearts\stage3-tbox\:/root/workspace swr.cn-north-4.myhuaweicloud.com/iov-workshop/tbox-compiler:v4
+# apt-get update && apt upgrade 
+# # apt-get -y install libgtest-dev
+# apt install ca-certificates apt-transport-https software-properties-common lsb-release libboost-dev -y
+
+# apt install python3.11 -y
+# python3.11 --version
+
+# # git clone https://github.com/sinojelly/mockcpp.git
+
+
+
+# cp lib/libg*.a /usr/lib
+# cp -rf ../googletest/include/gtest /usr/include/gtest
+# cp -rf ../googlemock/include/gmock /usr/include/gmock
+
+# cd ../../test_tools/mockcpp_install
+# cp lib/libmockcpp.a /usr/lib
+# cp -rf ./include/mockcpp /usr/include/mockcpp
+# cp -rf ./include/fake_boost /usr/include/fake_boost
+# cp -rf ./include/msinttypes /usr/include/msinttypes
+
+
+
 
