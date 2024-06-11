@@ -1,7 +1,8 @@
 #!/bin/bash
 pwd
 ls
-apt-get update && apt upgrade
+
+apt-get update && apt upgrade -y
 
 apt-get -y install wget
 apt-get -y install libpaho-mqtt-dev
@@ -29,6 +30,8 @@ echo "----------install deps end ----------"
 
 
 echo "----------start build and intstall mockcpp ----------"
+
+rm -rf ../mockcpp
 
 git clone https://github.com/sinojelly/mockcpp.git ../mockcpp
 

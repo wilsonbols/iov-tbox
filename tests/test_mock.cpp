@@ -5,7 +5,7 @@
 #include <sys/socket.h>
 
 extern "C" {
-#include "../cantomqtt/control.h"
+    #include "../cantomqtt/control.h"
 }
 
 //USING_NS_MOCKCPP;
@@ -65,6 +65,23 @@ TEST(suite3,innefunc_mock_test)
 
     testfunc();
     ASSERT_EQ(var, 10);    
+}
+
+TEST(suite4, getlocation_mock_test)
+{
+    std::string expected = "GuangZhou Town, Maonan District, Maoming City, Guangdong Province";
+    MOCKER(getlocation).stubs().will(returnValue(const_cast<char*>(expected.c_str())));
+    char* adress = getlocation(0);//0:Fengtai District, Beijing City
+    EXPECT_EQ("GuangZhou Town, Maonan District, Maoming City, Guangdong Province", std::string(adress));
+}
+
+
+TEST(suite5, getlocation_mock_test2)
+{
+    std::string expected = "GuangZhou Town, Maonan District, Maoming City, Guangdong Province";
+    MOCKER(getlocation).stubs().will(returnValue(const_cast<char*>(expected.c_str())));
+    char* adress = getGPRSLocaltion(0);//0:Fengtai District, Beijing City
+    EXPECT_EQ("GuangZhou Town, Maonan District, Maoming City, Guangdong Province", std::string(adress));
 }
 
 // TEST(CanbusTest, TestCanSend) {

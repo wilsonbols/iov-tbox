@@ -18,6 +18,7 @@ char* getBeijingTime();
 char* cansend_cardoor(char* json_string);
 int gettemperature(char* json);
 char* getcollision(int index);
+char* getGPRSLocaltion(int index);
 char* getlocation(int index);
 int getRand2();
 int getRand99();
@@ -207,7 +208,11 @@ char* getcollision(int index) {
     return events[index];
 }
 
-//
+
+char* getGPRSLocaltion(int index) {
+   return getlocation(index);
+}
+
 char* getlocation(int index) {
 
      char* events[] = {"Fengtai District, Beijing City",

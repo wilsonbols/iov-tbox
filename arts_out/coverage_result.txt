@@ -5,13 +5,13 @@ Filename                         |Rate     Num|Rate    Num|Rate     Num
 [/root/tbox/build/_deps/googletest-src/googletest/include/gtest/]
 gtest-assertion-result.h         |72.7%     11|44.4%     9|    -      0
 gtest-message.h                  |87.5%      8|40.0%     5|    -      0
-gtest-printers.h                 | 100%     27| 100%     9|    -      0
-gtest.h                          |52.6%     19|45.5%    11|    -      0
-internal/gtest-internal.h        |89.5%     19|92.3%    13|    -      0
+gtest-printers.h                 |71.1%     38|42.9%    21|    -      0
+gtest.h                          |52.6%     19|50.0%    14|    -      0
+internal/gtest-internal.h        |89.5%     19|93.3%    15|    -      0
 internal/gtest-port.h            | 0.0%      1| 0.0%     1|    -      0
 
 [/root/tbox/tests/]
-test_mock.cpp                    |87.5%     32|88.2%    17|    -      0
+test_mock.cpp                    |90.9%     44|92.0%    25|    -      0
 test_tbox.cpp                    | 100%     18| 100%    12|    -      0
 =======================================================================
-                           Total:|85.2%    135|76.6%    77|    -      0
+                           Total:|80.4%    158|69.6%   102|    -      0
