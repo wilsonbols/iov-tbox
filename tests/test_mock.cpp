@@ -64,7 +64,7 @@ TEST(suite3,innefunc_mock_test)
         .with(eq(10));
 
     testfunc();
-    ASSERT_EQ(var, 10);    
+    ASSERT_EQ(var, 10);//test will fail
 }
 
 TEST(suite4, getlocation_mock_test)

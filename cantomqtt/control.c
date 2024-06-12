@@ -19,6 +19,8 @@ char* cansend_cardoor(char* json_string);
 int gettemperature(char* json);
 char* getcollision(int index);
 char* getGPRSLocaltion(int index);
+char* sendGPRSRequest(const char* requestType, int index);
+char* parseLocation(const char* gprsResponse);
 char* getlocation(int index);
 int getRand2();
 int getRand99();
@@ -74,98 +76,12 @@ char* getBeijingTime() {
     return dateTimeString;
 }
 
-// // Write data to the CAN bus
-// char* cansend_cardoor(char* json_string) {
-    
-//     perror("cansend_cardoor Not Implementation !");
-//     fprintf(stderr, "Recive JSON : %s\n", json_string);
-    
-// }
-
 // Write data to the CAN bus
 char* cansend_cardoor(char* json_string) {
     
-    const char* debug_env_flag = getenv("debug_env_flag");
-
-    if (debug_env_flag && strcmp(debug_env_flag, "1") == 0) {
-        fprintf(stderr, "read debug flag， return.");
-        return 0;
-    }   
+    perror("cansend_cardoor Not Implementation !");
+    fprintf(stderr, "Recive JSON : %s\n", json_string);
     
-    struct ifreq ifr = {0};
-    struct sockaddr_can can_addr = {0};
-    struct can_frame frame = {0};
-    int sockfd = -1;
-    int ret;
-
-    /* Open the socket */
-    sockfd = socket(PF_CAN, SOCK_RAW, CAN_RAW);
-    if(0 > sockfd) {
-        perror("socket error");
-        exit(EXIT_FAILURE);
-    }
-
-    /* Specify the can0 device */
-    strcpy(ifr.ifr_name, "can0");
-    ioctl(sockfd, SIOCGIFINDEX, &ifr);
-    can_addr.can_family = AF_CAN;
-    can_addr.can_ifindex = ifr.ifr_ifindex;
-
-    /* Bind can0 to the socket */
-    ret = bind(sockfd, (struct sockaddr *)&can_addr, sizeof(can_addr));
-    if (0 > ret) {
-        perror("bind error");
-        close(sockfd);
-        exit(EXIT_FAILURE);
-    }
-
-    /* Set the filter rules: do not accept any messages, only send data */
-    setsockopt(sockfd, SOL_CAN_RAW, CAN_RAW_FILTER, NULL, 0);
-
-    // -------------------------------Parse the JSON string
-    json_error_t error;
-    json_t *root = json_loads(json_string, 0, &error);
-
-    if (root) {
-        const char *vin = json_string_value(json_object_get(root, "vin"));
-        const char *device = json_string_value(json_object_get(root, "device"));
-        const char *action = json_string_value(json_object_get(root, "action"));
-
-        if (strcasecmp(action, "open") == 0) {
-            frame.data[0] = 0x1;
-            frame.data[1] = 0x1;
-        }
-        else
-        {
-            frame.data[0] = 0x1;
-            frame.data[1] = 0x0;
-        }
-
-        frame.data[2] = 0x0;
-        frame.data[3] = 0x0;
-        frame.can_dlc = 4;	// Send 6 bytes of data at a time
-        frame.can_id = 0x200; // Frame ID is 0x200, standard frame
-
-        ret = write(sockfd, &frame, sizeof(frame)); // Send data
-        if(sizeof(frame) != ret) { // If ret is not equal to the frame length, it means the sending failed
-            perror("write error");
-            goto out;
-        }
-
-        // Call the function to get the time string
-        char *beijingTime = getBeijingTime();
-        // Output the time string
-        printf("%s ------Get remote data sent to the CAN bus: data[0] `%d` data[1] `%d`\n\n", beijingTime, frame.data[0], frame.data[1]);
-
-        json_decref(root);
-    } else {
-        fprintf(stderr, "JSON parsing error: %s\n", error.text);
-    }
-
-    out:
-    /* Close the socket */
-    close(sockfd);
-    //exit(EXIT_SUCCESS);
 }
 
 // Parse
@@ -208,9 +124,50 @@ char* getcollision(int index) {
     return events[index];
 }
 
-
 char* getGPRSLocaltion(int index) {
+   // Check if the index is valid
+   if (index < 0 || index >= 117) {
+      return "Invalid index"; // Return an error message if the index is invalid
+   }
+
+   // Simulate GPRS module initialization
+   initializeGPRSModule();
+
+   // Simulate sending a request to the GPRS module to obtain location information
+   char* gprsResponse = sendGPRSRequest("GET_LOCATION", index);
+
+   // Check the response from the GPRS module
+   if (gprsResponse == NULL || strcmp(gprsResponse, "ERROR") == 0) {
+      return "GPRS module error"; // Return an error message if there is an error with the GPRS module
+   }
+
+   // Parse the location information returned by the GPRS module
+   char* location = parseLocation(gprsResponse);
+   
+   // Check if the location information was successfully parsed
+   if (location == NULL) {
+      return "Location parse error"; // Return an error message if there is a parsing error
+   }
+
+   // Return the parsed location information
    return getlocation(index);
+}
+
+// Simulate GPRS module initialization function
+void initializeGPRSModule() {
+   // Initialize the GPRS module
+}
+
+// Simulate sending a GPRS request function
+char* sendGPRSRequest(const char* requestType, int index) {
+   //  Send a request to the GPRS module and get a response
+   return "Mocked GPRS Response";
+}
+
+// Simulate parsing location information function
+char* parseLocation(const char* gprsResponse) {
+   // Parse the location information from the GPRS response
+   return "Mocked Location Info";
 }
 
 char* getlocation(int index) {
