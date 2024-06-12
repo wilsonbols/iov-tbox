@@ -4,13 +4,13 @@ project(gtest_c_cpp_demo C CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# 不再使用LINK_LIBRARIES全局链接库
+# No longer use LINK_LIBRARIES for global library linking
 #LINK_LIBRARIES(m pthread)
 
 #file(REMOVE_RECURSE "build")
 
-# 添加主程序的可执行文件
-# add_executable(gtest_c_cpp_demo_main main.cpp add.cpp libs/equal.c cantomqtt/control.c)  # 确保add.cpp/,libs/equal.c被编译进主程序
+# Add the executable file of the main program
+# add_executable(gtest_c_cpp_demo_main main.cpp add.cpp libs/equal.c cantomqtt/control.c)  # Ensure add.cpp/,libs/equal.c are compiled into the main program
 # target_link_libraries(gtest_c_cpp_demo_main jansson)
 
 include(FetchContent)
@@ -32,17 +32,15 @@ include_directories(${CMAKE_BINARY_DIR}/_deps/googletest-src/googletest/include)
 # link_directories(${PROJECT_SOURCE_DIR}/3rdparty/mockcpp/lib)
 
 
-# 添加测试目标
-add_executable(tbox_gtest_tests tests/test_tbox.cpp tests/test_mock.cpp cantomqtt/control.c)  # 确保add.cpp和libs/equal.c被编译进测试目标
+# Add test target
+add_executable(tbox_gtest_tests tests/test_tbox.cpp tests/test_mock.cpp cantomqtt/control.c)  # Ensure add.cpp and libs/equal.c are compiled into the test target
 target_link_libraries(tbox_gtest_tests gtest gtest_main jansson mockcpp)
 
-# 添加覆盖率编译器标志，编译时使用 参数来传递：cmake -DCODE_COVERAGE=ON ..
+# Add coverage compiler flag, use parameter to pass during compilation: cmake -DCODE_COVERAGE=ON ..
 if(CODE_COVERAGE)   
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
 endif()
 
-# 注册测试到ctest模块中
+# Register tests to ctest module
 enable_testing()
 add_test(NAME tbox_gtest_tests COMMAND tbox_gtest_tests)
-
-
