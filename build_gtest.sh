@@ -87,6 +87,14 @@ cd /root/tbox
 
 ls
 
+if [ ! -d /root/tbox/build ]; then
+  mkdir /root/tbox/build
+fi
+
+if [ ! -d /root/tbox/arts_out ]; then
+  mkdir /root/tbox/arts_out
+fi
+
 chmod -R 777 build
 chmod -R 777 arts_out
 rm -rf build/* 
