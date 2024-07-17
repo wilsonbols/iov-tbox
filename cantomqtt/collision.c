@@ -101,7 +101,7 @@ void readcansimulate(MQTTClient client, char *topic)
             // Add key-value pairs to JSON object
             json_object_set_new(root, "vin", json_string("NH2FX13D223ES1340"));
             json_object_set_new(root, "collisioninfo", json_string(getcollision(frame.data[2])));
-            json_object_set_new(root, "locationinfo", json_string(getlocation(frame.data[3])));
+            json_object_set_new(root, "locationinfo", json_string(getGPRSLocaltion(frame.data[3])));
             json_object_set_new(root, "descriptioninfo", json_string(prmstr));
 
             // Convert JSON object to string

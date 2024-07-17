@@ -1,0 +1,10 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Config",
+			"type": "shell",
+			"command": "cmake --no-warn-unused-cli -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=Debug -S '${workspaceRoot}' -B '${workspaceRoot}\\cmake-build-debug' -G Ninja"
+		}
+	]
+}
