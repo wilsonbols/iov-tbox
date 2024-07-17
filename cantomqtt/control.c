@@ -18,9 +18,6 @@ char* getBeijingTime();
 char* cansend_cardoor(char* json_string);
 int gettemperature(char* json);
 char* getcollision(int index);
-char* getGPRSLocaltion(int index);
-char* sendGPRSRequest(const char* requestType, int index);
-char* parseLocation(const char* gprsResponse);
 char* getlocation(int index);
 int getRand2();
 int getRand99();
@@ -124,52 +121,7 @@ char* getcollision(int index) {
     return events[index];
 }
 
-char* getGPRSLocaltion(int index) {
-   // Check if the index is valid
-   if (index < 0 || index >= 117) {
-      return "Invalid index"; // Return an error message if the index is invalid
-   }
-
-   // Simulate GPRS module initialization
-   initializeGPRSModule();
-
-   // Simulate sending a request to the GPRS module to obtain location information
-   char* gprsResponse = sendGPRSRequest("GET_LOCATION", index);
-
-   // Check the response from the GPRS module
-   if (gprsResponse == NULL || strcmp(gprsResponse, "ERROR") == 0) {
-      return "GPRS module error"; // Return an error message if there is an error with the GPRS module
-   }
-
-   // Parse the location information returned by the GPRS module
-   char* location = parseLocation(gprsResponse);
-   
-   // Check if the location information was successfully parsed
-   if (location == NULL) {
-      return "Location parse error"; // Return an error message if there is a parsing error
-   }
-
-   // Return the parsed location information
-   return getlocation(index);
-}
-
-// Simulate GPRS module initialization function
-void initializeGPRSModule() {
-   // Initialize the GPRS module
-}
-
-// Simulate sending a GPRS request function
-char* sendGPRSRequest(const char* requestType, int index) {
-   //  Send a request to the GPRS module and get a response
-   return "Mocked GPRS Response";
-}
-
-// Simulate parsing location information function
-char* parseLocation(const char* gprsResponse) {
-   // Parse the location information from the GPRS response
-   return "Mocked Location Info";
-}
-
+//
 char* getlocation(int index) {
 
      char* events[] = {"Fengtai District, Beijing City",

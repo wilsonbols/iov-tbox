@@ -11,6 +11,3 @@ dist-ssr
 cmake-build-debug
 manual-build
 can_*
-build/*
-gtest_mock.sh
-cantomqtt/tbox

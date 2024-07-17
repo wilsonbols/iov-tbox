@@ -16,7 +16,6 @@ int gettemperature(char* json_string);
 
 char* getcollision(int index);
 char* getlocation(int index);
-char* getGPRSLocaltion(int index);
 
 int getRand2();
 
