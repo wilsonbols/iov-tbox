@@ -23,8 +23,11 @@ fi
 
 echo "----------build start"
 
-arm-linux-gnueabi-gcc writecan.c control.c -o can_send -ljansson -march=armv5te
-arm-linux-gnueabi-gcc mqtt.c control.c collision.c -o tbox -lpaho-mqtt3c -ljansson -march=armv5te
+# local debug
+arm-linux-gnueabi-gcc -g -o can_send writecan.c control.c -ljansson -march=armv5te
+
+# -g for gdb remote debug 
+arm-linux-gnueabi-gcc -g -o tbox mqtt.c control.c collision.c -lpaho-mqtt3c -ljansson -march=armv5te
 chmod -R 777 can_send
 chmod -R 777 tbox
 
